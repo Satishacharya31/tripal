@@ -36,8 +36,8 @@ export const DataProvider = ({ children }) => {
       const response = await fetch(endpoint, { headers: getAuthHeaders() });
       if (response.ok) {
         const data = await response.json();
-        // Always set as array, fallback to []
-        let result = data.data?.requests || data.data;
+        // Extract data based on possible keys
+        let result = data.data?.destinations || data.data?.guides || data.data?.requests || data.data?.notifications || data.data || [];
         if (!Array.isArray(result)) {
           result = [];
         }
