@@ -8,27 +8,36 @@ module.exports = function(passport) {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: '/api/auth/google/callback'
+        callbackURL: `${process.env.BACKEND_URL}/api/auth/google/callback`
       },
       async (accessToken, refreshToken, profile, done) => {
-        const newUser = {
-          googleId: profile.id,
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          avatar: profile.photos[0].value
-        };
-
         try {
-          let user = await User.findOne({ googleId: profile.id });
+          let user = await User.findOne({ email: profile.emails[0].value });
 
           if (user) {
-            done(null, user);
-          } else {
-            user = await User.create(newUser);
-            done(null, user);
+            // User already exists, update googleId if it's not set
+            if (!user.googleId) {
+              user.googleId = profile.id;
+              await user.save({ validateBeforeSave: false });
+            }
+            return done(null, user);
           }
+
+          // New user, create with incomplete profile
+          const newUser = {
+            googleId: profile.id,
+            name: profile.displayName,
+            email: profile.emails[0].value,
+            avatar: profile.photos[0].value,
+            profileIncomplete: true,
+            isActive: true // ensure Google users are active
+          };
+
+          user = await User.create(newUser);
+          done(null, user);
         } catch (err) {
           console.error(err);
+          done(err, null);
         }
       }
     )

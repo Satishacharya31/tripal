@@ -28,7 +28,7 @@ function ProtectedRoute({ children, adminOnly = false }) {
     return <Navigate to="/login" />;
   }
 
-  if (!user.role) {
+  if (user.profileIncomplete) {
     return <Navigate to="/complete-profile" />;
   }
   

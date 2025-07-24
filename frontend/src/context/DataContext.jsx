@@ -21,9 +21,14 @@ export const DataProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   const getAuthHeaders = () => {
-    return {
+    const token = localStorage.getItem('token');
+    const headers = {
       'Content-Type': 'application/json'
     };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
   };
 
   useEffect(() => {
@@ -54,7 +59,7 @@ export const DataProvider = ({ children }) => {
 
         if (reqRes.ok) {
           const reqData = await reqRes.json();
-          setRequests(reqData.data);
+          setRequests(reqData.data.requests || []);
         }
         if (notifRes.ok) {
           const notifData = await notifRes.json();

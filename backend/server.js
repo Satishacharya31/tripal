@@ -75,19 +75,23 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
+// Serve frontend files
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// Catch-all for frontend routing, ensuring API routes are not caught
+app.get('*', (req, res, next) => {
+  if (req.originalUrl.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
+
+// 404 handler for any other requests (i.e., API routes that don't exist)
+app.use((req, res) => {
   res.status(404).json({
     status: 'error',
     message: `Route ${req.originalUrl} not found`
   });
-});
-
-// Serve frontend files
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 // Global error handler

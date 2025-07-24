@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   googleId: {
@@ -26,15 +28,21 @@ const userSchema = new mongoose.Schema({
     minlength: [6, 'Password must be at least 6 characters'],
     select: false
   },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
   phone: {
     type: String,
-    required: [true, 'Phone number is required'],
+    required: function() { return !this.profileIncomplete; },
     trim: true
   },
   country: {
     type: String,
-    required: [true, 'Country is required'],
+    required: function() { return !this.profileIncomplete; },
     trim: true
+  },
+  profileIncomplete: {
+    type: Boolean,
+    default: false
   },
   role: {
     type: String,
@@ -128,6 +136,20 @@ userSchema.methods.getPublicProfile = function() {
   const user = this.toObject();
   delete user.password;
   return user;
+};
+
+// Sign JWT and return
+userSchema.methods.getSignedJwtToken = function () {
+  return jwt.sign({ id: this._id, role: this.role }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  });
+};
+
+userSchema.methods.createPasswordResetToken = function() {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  return resetToken;
 };
 
 module.exports = mongoose.model('User', userSchema);

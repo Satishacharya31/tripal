@@ -16,12 +16,23 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const fetchUser = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
     try {
-      const response = await fetch(`/api/auth/me`);
+      const response = await fetch(`/api/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setUser(data.data.user);
       } else {
+        localStorage.removeItem('token');
         setUser(null);
       }
     } catch (error) {
@@ -31,10 +42,18 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+      localStorage.setItem('token', token);
+      window.history.replaceState({}, document.title, '/');
+    }
+
     const checkSession = async () => {
       await fetchUser();
       setLoading(false);
-    }
+    };
     checkSession();
   }, []);
 
@@ -44,10 +63,13 @@ export const AuthProvider = ({ children }) => {
       const response = await fetch(`/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
       if (response.ok) {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
         await fetchUser();
         return { success: true };
       }
@@ -65,10 +87,13 @@ export const AuthProvider = ({ children }) => {
       const response = await fetch(`/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(userData),
       });
       const data = await response.json();
       if (response.ok) {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
         await fetchUser();
         return { success: true };
       }
@@ -88,16 +113,19 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
+      localStorage.removeItem('token');
       setUser(null);
     }
   };
 
   const updateProfile = async (profileData) => {
+    const token = localStorage.getItem('token');
     try {
       const response = await fetch(`/api/auth/profile`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(profileData)
       });
@@ -119,7 +147,8 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    updateProfile
+    updateProfile,
+    fetchUser // export fetchUser for Google OAuth callback
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

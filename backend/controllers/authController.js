@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const crypto = require('crypto');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -24,16 +25,18 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
     .json({
       status: 'success',
       message,
+      token, // include token in response body
       data: {
         user: user.getPublicProfile()
       }
     });
 };
 
-// @desc    Google auth callback
+// @desc    Google auth callback (not used in current route, handled by direct redirect in route)
 // @route   GET /api/auth/google/callback
 // @access  Public
 const googleCallback = (req, res) => {
+  // Not used: see /api/auth/google/callback route for redirect logic
   sendTokenResponse(req.user, 200, res);
 };
 
@@ -60,7 +63,8 @@ const register = async (req, res) => {
       password,
       phone,
       country,
-      role: role || 'tourist'
+      role: role || 'tourist',
+      isActive: true // ensure user is active on registration
     };
 
     // Add guide-specific fields if role is guide
@@ -272,6 +276,41 @@ const changePassword = async (req, res) => {
   }
 };
 
+// Request password reset
+// @route POST /api/auth/forgot-password
+// @access Public
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ status: 'error', message: 'No user with that email' });
+  }
+  // Generate reset token
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+  // In production, send email. For demo, return token in response.
+  res.status(200).json({ status: 'success', message: 'Reset token generated', resetToken });
+};
+
+// Reset password
+// @route POST /api/auth/reset-password/:token
+// @access Public
+const resetPassword = async (req, res) => {
+  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() }
+  });
+  if (!user) {
+    return res.status(400).json({ status: 'error', message: 'Token is invalid or has expired' });
+  }
+  user.password = req.body.password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+  sendTokenResponse(user, 200, res, 'Password reset successful');
+};
+
 module.exports = {
   register,
   login,
@@ -280,4 +319,6 @@ module.exports = {
   updateProfile,
   changePassword,
   googleCallback,
+  forgotPassword,
+  resetPassword,
 };

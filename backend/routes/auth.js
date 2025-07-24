@@ -5,7 +5,9 @@ const {
   logout,
   getMe,
   updateProfile,
-  changePassword
+  changePassword,
+  forgotPassword,
+  resetPassword
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const passport = require('passport');
@@ -21,12 +23,22 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 
 router.get(
   '/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', {
+    failureRedirect: `${process.env.FRONTEND_URL}/login`,
+    session: false,
+  }),
   (req, res) => {
-    // Successful authentication, redirect home.
-    res.redirect('/');
+    const token = req.user.getSignedJwtToken();
+    if (req.user.profileIncomplete) {
+      return res.redirect(`${process.env.FRONTEND_URL}/complete-profile?token=${token}`);
+    }
+    res.redirect(`${process.env.FRONTEND_URL}/?token=${token}`);
   }
 );
+
+// Password reset routes
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword);
 
 // Protected routes
 router.use(protect); // All routes after this middleware are protected
