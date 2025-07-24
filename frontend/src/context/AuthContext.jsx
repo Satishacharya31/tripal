@@ -130,7 +130,7 @@ export const AuthProvider = ({ children }) => {
       });
       const data = await response.json();
       if (response.ok) {
-        await fetchUser(); // Refetch user to get updated data
+        setUser(prevUser => ({ ...prevUser, ...data.data.user }));
         return { success: true };
       }
       return { success: false, error: data.message };
