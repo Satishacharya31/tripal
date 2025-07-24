@@ -4,6 +4,9 @@ import { Mountain, MapPin, Users, Star, ArrowRight, Heart } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 
+
+import logoNepXplore from '../assets/logo-white.png';
+
 const HomePage = () => {
   const { destinations, loading } = useData();
   const { user } = useAuth();
@@ -39,7 +42,7 @@ const HomePage = () => {
           }}
         ></div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <Mountain className="h-16 w-16 mx-auto mb-6 text-yellow-400" />
+          <img src={logoNepXplore} alt="NepXplore Logo" className="h-12 object-contain mx-auto" />
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             Discover the Magic of Nepal
           </h1>
