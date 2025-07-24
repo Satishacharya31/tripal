@@ -79,7 +79,7 @@ const LoginPage = () => {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <Mountain className="h-12 w-12 text-blue-600 mr-2" />
-              <h1 className="text-3xl font-bold text-gray-900">Nepal Guide Connect</h1>
+              <h1 className="text-3xl font-bold text-gray-900">NepXplore</h1>
             </div>
             <p className="text-gray-600">Welcome back to your Nepal adventure</p>
           </div>

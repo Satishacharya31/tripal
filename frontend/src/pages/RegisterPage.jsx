@@ -58,7 +58,7 @@ const RegisterPage = () => {
             <Mountain className="mx-auto h-12 w-12 text-blue-600" />
             <h2 className="mt-6 text-3xl font-bold text-gray-900">Join Us</h2>
             <p className="mt-2 text-sm text-gray-600">
-              Create your Nepal Guide Connect account
+              Create your NepXplore account
             </p>
           </div>
           
