@@ -61,7 +61,7 @@ const Navbar = () => {
                 <div className="relative group">
                   <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
                     <User className="h-5 w-5" />
-                    <span className="max-w-32 truncate">{user.name}</span>
+                    <span className="truncate max-w-xs">{user.name}</span>
                   </button>
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-100">
                     <div className="px-4 py-3 border-b border-gray-100">

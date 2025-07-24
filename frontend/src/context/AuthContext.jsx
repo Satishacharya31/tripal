@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (!token) {
       setUser(null);
+      setLoading(false);
       return;
     }
 
@@ -38,6 +39,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Session check failed:', error);
       setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,14 +50,10 @@ export const AuthProvider = ({ children }) => {
 
     if (token) {
       localStorage.setItem('token', token);
-      window.history.replaceState({}, document.title, '/');
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
-
-    const checkSession = async () => {
-      await fetchUser();
-      setLoading(false);
-    };
-    checkSession();
+    
+    fetchUser();
   }, []);
 
   const login = async (email, password) => {
@@ -127,11 +126,11 @@ export const AuthProvider = ({ children }) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(profileData)
+        body: JSON.stringify(profileData),
       });
       const data = await response.json();
       if (response.ok) {
-        setUser(data.data.user);
+        await fetchUser(); // Refetch user to get updated data
         return { success: true };
       }
       return { success: false, error: data.message };

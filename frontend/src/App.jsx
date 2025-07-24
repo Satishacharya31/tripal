@@ -13,7 +13,7 @@ import CompleteProfilePage from './pages/CompleteProfilePage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 
-function ProtectedRoute({ children, adminOnly = false }) {
+function ProtectedRoute({ children, adminOnly = false, allowIncomplete = false }) {
   const { user, loading, isAuthenticating } = useAuth();
   
   if (loading || isAuthenticating) {
@@ -28,7 +28,8 @@ function ProtectedRoute({ children, adminOnly = false }) {
     return <Navigate to="/login" />;
   }
 
-  if (user.profileIncomplete) {
+  // Only block if profileIncomplete is strictly true
+  if ((user.profileIncomplete === true) && !allowIncomplete) {
     return <Navigate to="/complete-profile" />;
   }
   
@@ -72,7 +73,7 @@ function AppContent() {
           </ProtectedRoute>
         } />
         <Route path="/complete-profile" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowIncomplete>
             <CompleteProfilePage />
           </ProtectedRoute>
         } />

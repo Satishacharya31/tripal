@@ -193,6 +193,16 @@ const updateProfile = async (req, res) => {
       country: req.body.country
     };
 
+    // If role is provided in the request, update it
+    if (req.body.role) {
+      fieldsToUpdate.role = req.body.role;
+    }
+
+    // If profileIncomplete is provided in the request, update it
+    if (typeof req.body.profileIncomplete !== 'undefined') {
+      fieldsToUpdate.profileIncomplete = req.body.profileIncomplete;
+    }
+
     // Add guide-specific fields if user is a guide
     if (req.user.role === 'guide') {
       if (req.body.specialties) fieldsToUpdate.specialties = req.body.specialties;

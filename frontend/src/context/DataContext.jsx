@@ -31,47 +31,43 @@ export const DataProvider = ({ children }) => {
     return headers;
   };
 
+  const fetchData = async (endpoint, setter) => {
+    try {
+      const response = await fetch(endpoint, { headers: getAuthHeaders() });
+      if (response.ok) {
+        const data = await response.json();
+        // Always set as array, fallback to []
+        let result = data.data?.requests || data.data;
+        if (!Array.isArray(result)) {
+          result = [];
+        }
+        setter(result);
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      if (!user) {
-        setRequests([]);
-        setNotifications([]);
-        setLoading(false);
-        return;
-      }
-      try {
-        setLoading(true);
-        const [destRes, guidesRes, reqRes, notifRes] = await Promise.all([
-          fetch(`/api/destinations`),
-          fetch(`/api/guides`),
-          fetch(`/api/requests`, { headers: getAuthHeaders() }),
-          fetch(`/api/notifications`, { headers: getAuthHeaders() })
-        ]);
-
-        if (!destRes.ok || !guidesRes.ok) {
-          throw new Error('Failed to fetch initial data');
-        }
-
-        const destData = await destRes.json();
-        const guidesData = await guidesRes.json();
-        setDestinations(destData.data.destinations);
-        setGuides(guidesData.data);
-
-        if (reqRes.ok) {
-          const reqData = await reqRes.json();
-          setRequests(reqData.data.requests || []);
-        }
-        if (notifRes.ok) {
-          const notifData = await notifRes.json();
-          setNotifications(notifData.data);
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+    const fetchInitialData = async () => {
+      setLoading(true);
+      await Promise.all([
+        fetchData(`/api/destinations`, setDestinations),
+        fetchData(`/api/guides`, setGuides),
+      ]);
+      setLoading(false);
     };
-    fetchData();
+    fetchInitialData();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchData(`/api/requests`, setRequests);
+      fetchData(`/api/notifications`, setNotifications);
+    } else {
+      setRequests([]);
+      setNotifications([]);
+    }
   }, [user]);
 
   const submitRequest = async (requestData) => {
@@ -174,6 +170,10 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  const getNotifications = async () => {
+    await fetchData(`/api/notifications`, setNotifications);
+  };
+
   const value = {
     destinations,
     guides,
@@ -185,9 +185,9 @@ export const DataProvider = ({ children }) => {
     assignGuide,
     updateRequestStatus,
     updateGuide,
-    getNotifications: () => notifications,
+    getNotifications,
     markNotificationAsRead,
-    clearNotifications
+    clearNotifications,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

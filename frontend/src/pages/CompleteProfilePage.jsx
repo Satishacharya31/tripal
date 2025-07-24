@@ -14,13 +14,13 @@ const CompleteProfilePage = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
-    if (token && !user) {
+    if (token) {
       localStorage.setItem('token', token);
       fetchUser().then(() => {
         window.history.replaceState({}, document.title, '/complete-profile');
       });
     }
-  }, [user, fetchUser]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,6 +45,14 @@ const CompleteProfilePage = () => {
       setIsLoading(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center px-4">
