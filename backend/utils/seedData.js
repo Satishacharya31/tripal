@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const Destination = require('../models/Destination');
 const Request = require('../models/Request');
-require('dotenv').config();
+require('dotenv').config({ path: './backend/.env' });
 
 const destinations = [
   {
@@ -82,6 +82,45 @@ const destinations = [
     duration: { min: 1, max: 3 },
     highlights: ['Maya Devi Temple', 'Buddhist monasteries', 'Peace Pagoda'],
     requirements: ['Interest in spirituality and Buddhism']
+  },
+  {
+    name: 'Gosaikunda Lake',
+    description: 'Sacred alpine lake with stunning Himalayan views.',
+    image: 'https://images.pexels.com/photos/1007657/pexels-photo-1007657.jpeg',
+    category: 'trekking',
+    difficulty: 'challenging',
+    location: 'Rasuwa District',
+    altitude: 4380,
+    bestSeason: ['autumn', 'spring'],
+    duration: { min: 7, max: 10 },
+    highlights: ['Gosaikunda Lake', 'Himalayan views', 'Lauribina La Pass'],
+    requirements: ['Good physical fitness', 'Trekking experience']
+  },
+  {
+    name: 'Upper Mustang',
+    description: 'Trek through a remote, semi-arid desert landscape.',
+    image: 'https://images.pexels.com/photos/238622/pexels-photo-238622.jpeg',
+    category: 'trekking',
+    difficulty: 'challenging',
+    location: 'Mustang District',
+    altitude: 3840,
+    bestSeason: ['spring', 'summer', 'autumn'],
+    duration: { min: 10, max: 14 },
+    highlights: ['Ancient monasteries', 'Unique landscapes', 'Tibetan culture'],
+    requirements: ['Special permit required', 'Good fitness']
+  },
+  {
+    name: 'Rara Lake',
+    description: 'Largest lake in Nepal, located in a remote area.',
+    image: 'https://images.pexels.com/photos/1666021/pexels-photo-1666021.jpeg',
+    category: 'trekking',
+    difficulty: 'moderate',
+    location: 'Mugu District',
+    altitude: 2990,
+    bestSeason: ['autumn', 'spring'],
+    duration: { min: 10, max: 15 },
+    highlights: ['Rara Lake', 'Pristine nature', 'Wildlife'],
+    requirements: ['Remote area travel experience', 'Good fitness']
   }
 ];
 

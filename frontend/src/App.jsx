@@ -28,8 +28,7 @@ function ProtectedRoute({ children, adminOnly = false, allowIncomplete = false }
     return <Navigate to="/login" />;
   }
 
-  // Only block if profileIncomplete is strictly true
-  if ((user.profileIncomplete === true) && !allowIncomplete) {
+  if (user.profileIncomplete && !allowIncomplete) {
     return <Navigate to="/complete-profile" />;
   }
   
@@ -37,6 +36,24 @@ function ProtectedRoute({ children, adminOnly = false, allowIncomplete = false }
     return <Navigate to="/dashboard" />;
   }
   
+  return children;
+}
+
+function GuestRoute({ children }) {
+  const { user, loading, isAuthenticating } = useAuth();
+
+  if (loading || isAuthenticating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" />;
+  }
+
   return children;
 }
 
@@ -48,8 +65,8 @@ function AppContent() {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+        <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
         <Route path="/request" element={
           <ProtectedRoute>
             <RequestForm />

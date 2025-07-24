@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Phone, MapPin, Save } from 'lucide-react';
+import { User, Phone, MapPin, Save } from 'lucide-react';
 
 const CompleteProfilePage = () => {
-  const [phone, setPhone] = useState('');
-  const [country, setCountry] = useState('');
-  const [role, setRole] = useState('tourist');
-  const [isLoading, setIsLoading] = useState(false);
   const { user, updateProfile, fetchUser } = useAuth();
   const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    phone: user?.phone || '',
+    country: user?.country || '',
+    role: user?.role || 'tourist',
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -20,7 +24,14 @@ const CompleteProfilePage = () => {
         window.history.replaceState({}, document.title, '/complete-profile');
       });
     }
-  }, []);
+  }, [fetchUser]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,9 +39,7 @@ const CompleteProfilePage = () => {
 
     try {
       const result = await updateProfile({
-        phone,
-        country,
-        role,
+        ...formData,
         profileIncomplete: false,
       });
 
@@ -66,7 +75,6 @@ const CompleteProfilePage = () => {
 
         <div className="bg-white rounded-xl shadow-lg p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Role selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">I am a</label>
               <div className="flex space-x-4">
@@ -75,8 +83,8 @@ const CompleteProfilePage = () => {
                     type="radio"
                     name="role"
                     value="tourist"
-                    checked={role === 'tourist'}
-                    onChange={() => setRole('tourist')}
+                    checked={formData.role === 'tourist'}
+                    onChange={handleChange}
                     className="mr-2"
                   />
                   Tourist
@@ -86,12 +94,31 @@ const CompleteProfilePage = () => {
                     type="radio"
                     name="role"
                     value="guide"
-                    checked={role === 'guide'}
-                    onChange={() => setRole('guide')}
+                    checked={formData.role === 'guide'}
+                    onChange={handleChange}
                     className="mr-2"
                   />
                   Guide
                 </label>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your full name"
+                  required
+                />
               </div>
             </div>
 
@@ -103,9 +130,10 @@ const CompleteProfilePage = () => {
                 <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   id="phone"
+                  name="phone"
                   type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  value={formData.phone}
+                  onChange={handleChange}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter your phone number"
                   required
@@ -121,9 +149,10 @@ const CompleteProfilePage = () => {
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   id="country"
+                  name="country"
                   type="text"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
+                  value={formData.country}
+                  onChange={handleChange}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter your country"
                   required

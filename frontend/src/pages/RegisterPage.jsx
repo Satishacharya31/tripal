@@ -5,13 +5,9 @@ import { useAuth } from '../context/AuthContext';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    phone: '',
-    country: '',
-    role: 'tourist'
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -75,25 +71,6 @@ const RegisterPage = () => {
             
             <div className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Full Name
-                </label>
-                <div className="mt-1 relative">
-                  <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3"
-                    placeholder="Enter your full name"
-                  />
-                </div>
-              </div>
-              
-              <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email Address
                 </label>
@@ -109,46 +86,6 @@ const RegisterPage = () => {
                     className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3"
                     placeholder="Enter your email"
                   />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                    Phone Number
-                  </label>
-                  <div className="mt-1 relative">
-                    <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      required
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3"
-                      placeholder="+977-1234567890"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-                    Country
-                  </label>
-                  <div className="mt-1 relative">
-                    <Globe className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      id="country"
-                      name="country"
-                      type="text"
-                      required
-                      value={formData.country}
-                      onChange={handleChange}
-                      className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3"
-                      placeholder="Your country"
-                    />
-                  </div>
                 </div>
               </div>
               
@@ -197,21 +134,6 @@ const RegisterPage = () => {
                 </div>
               </div>
               
-              <div className="md:col-span-2">
-                <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                  Account Type
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3"
-                >
-                  <option value="tourist">Tourist</option>
-                  <option value="guide">Guide</option>
-                </select>
-              </div>
             </div>
 
             <button
