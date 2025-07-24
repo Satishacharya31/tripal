@@ -21,22 +21,22 @@ import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 
 const GuideDashboard = () => {
-  const { requests, updateRequestStatus, getNotifications, markNotificationAsRead, clearNotifications, loading: dataLoading } = useData();
+  const { requests, notifications, updateRequestStatus, getNotifications, markNotificationAsRead, clearNotifications, loading: dataLoading } = useData();
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();
   const [notification, setNotification] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([]);
 
   // Get requests assigned to this guide
-  const myAssignments = requests.filter(req => req.assignedGuide === user.id);
+  const myAssignments = requests.filter(req => req.assignedGuide === user._id);
 
   // Load notifications
   useEffect(() => {
-    const userNotifications = getNotifications(user.id);
-    setNotifications(userNotifications);
-  }, [user.id, getNotifications]);
+    if (user) {
+      getNotifications();
+    }
+  }, [user, getNotifications]);
 
   useEffect(() => {
     if (location.state?.message) {
@@ -78,13 +78,10 @@ const GuideDashboard = () => {
   };
 
   const handleNotificationClick = (notificationId, requestId) => {
-    markNotificationAsRead(user.id, notificationId);
-    setNotifications(prev => prev.map(notif => 
-      notif.id === notificationId ? { ...notif, read: true } : notif
-    ));
+    markNotificationAsRead(notificationId);
     
     // Find and highlight the related request
-    const request = myAssignments.find(req => req.id === requestId);
+    const request = myAssignments.find(req => req._id === requestId);
     if (request) {
       setSelectedRequest(request);
     }
@@ -92,22 +89,8 @@ const GuideDashboard = () => {
   };
 
   const handleClearNotifications = () => {
-    clearNotifications(user.id);
-    setNotifications([]);
+    clearNotifications();
     setShowNotifications(false);
-  };
-
-  const getDestinationName = (destId) => {
-    // This would normally come from destinations data
-    const destinationNames = {
-      1: 'Everest Base Camp',
-      2: 'Pokhara',
-      3: 'Chitwan National Park',
-      4: 'Kathmandu Valley',
-      5: 'Annapurna Circuit',
-      6: 'Lumbini'
-    };
-    return destinationNames[destId] || `Destination ${destId}`;
   };
 
   if (authLoading || dataLoading) {
@@ -178,8 +161,8 @@ const GuideDashboard = () => {
                     ) : (
                       notifications.map(notification => (
                         <div
-                          key={notification.id}
-                          onClick={() => handleNotificationClick(notification.id, notification.requestId)}
+                          key={notification._id}
+                          onClick={() => handleNotificationClick(notification._id, notification.relatedRequest)}
                           className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
                             !notification.read ? 'bg-blue-50' : ''
                           }`}
@@ -189,7 +172,7 @@ const GuideDashboard = () => {
                               <p className="font-medium text-gray-900">{notification.title}</p>
                               <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
                               <p className="text-xs text-gray-400 mt-2">
-                                {new Date(notification.timestamp).toLocaleString()}
+                                {new Date(notification.createdAt).toLocaleString()}
                               </p>
                             </div>
                             {!notification.read && (
@@ -259,7 +242,7 @@ const GuideDashboard = () => {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">My Guide Profile</h2>
           <div className="flex items-start space-x-6">
             <img 
-              src={user.profileImage || 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg'} 
+              src={user.avatar || 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg'} 
               alt={user.name}
               className="w-20 h-20 rounded-full object-cover border-4 border-blue-200"
             />
@@ -313,15 +296,15 @@ const GuideDashboard = () => {
               {myAssignments.map((request) => {
                 const StatusIcon = getStatusIcon(request.status);
                 const hasUnreadNotification = notifications.some(n => 
-                  n.requestId === request.id && !n.read && n.type === 'assignment'
+                  n.relatedRequest === request._id && !n.read && n.type === 'assignment'
                 );
                 
                 return (
                   <div 
-                    key={request.id} 
+                    key={request._id} 
                     className={`border rounded-lg p-6 hover:shadow-md transition-shadow ${
                       hasUnreadNotification ? 'border-blue-300 bg-blue-50' : 'border-gray-200'
-                    } ${selectedRequest?.id === request.id ? 'ring-2 ring-blue-500' : ''}`}
+                    } ${selectedRequest?._id === request._id ? 'ring-2 ring-blue-500' : ''}`}
                   >
                     {hasUnreadNotification && (
                       <div className="mb-4 p-3 bg-blue-100 border border-blue-200 rounded-lg">
@@ -398,9 +381,9 @@ const GuideDashboard = () => {
                     <div className="mb-4">
                       <span className="text-sm font-medium text-gray-700">Selected Destinations:</span>
                       <div className="flex flex-wrap gap-2 mt-1">
-                        {request.selectedDestinations.map(destId => (
-                          <span key={destId} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                            {getDestinationName(destId)}
+                        {request.selectedDestinations.map(dest => (
+                          <span key={dest.destination} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                            {dest.name}
                           </span>
                         ))}
                       </div>
@@ -430,7 +413,7 @@ const GuideDashboard = () => {
                     <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                       {request.status === 'assigned' && (
                         <button
-                          onClick={() => handleStatusUpdate(request.id, 'in-progress')}
+                          onClick={() => handleStatusUpdate(request._id, 'in-progress')}
                           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center"
                         >
                           <Users className="h-4 w-4 mr-2" />
@@ -439,7 +422,7 @@ const GuideDashboard = () => {
                       )}
                       {request.status === 'in-progress' && (
                         <button
-                          onClick={() => handleStatusUpdate(request.id, 'completed')}
+                          onClick={() => handleStatusUpdate(request._id, 'completed')}
                           className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center"
                         >
                           <CheckCircle className="h-4 w-4 mr-2" />

@@ -15,6 +15,7 @@ export const DataProvider = ({ children }) => {
   const { user } = useAuth();
   const [destinations, setDestinations] = useState([]);
   const [guides, setGuides] = useState([]);
+  const [availableGuides, setAvailableGuides] = useState([]);
   const [requests, setRequests] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +54,7 @@ export const DataProvider = ({ children }) => {
       setLoading(true);
       await Promise.all([
         fetchData(`/api/destinations`, setDestinations),
-        fetchData(`/api/guides`, setGuides),
+        fetchData(`/api/guides?limit=100`, setGuides), // Fetch up to 100 guides
       ]);
       setLoading(false);
     };
@@ -174,12 +175,18 @@ export const DataProvider = ({ children }) => {
     await fetchData(`/api/notifications`, setNotifications);
   };
 
+  const fetchAvailableGuides = async (requestId) => {
+    await fetchData(`/api/guides/available/${requestId}`, setAvailableGuides);
+  };
+
   const value = {
     destinations,
     guides,
+    availableGuides,
     requests,
     notifications,
     loading,
+    fetchAvailableGuides,
     error,
     submitRequest,
     assignGuide,

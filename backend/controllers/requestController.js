@@ -8,6 +8,14 @@ const Notification = require('../models/Notification');
 // @access  Private (Tourist only)
 const createRequest = async (req, res) => {
   try {
+    // Ensure only tourists can create requests
+    if (req.user.role !== 'tourist') {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Only tourists can create guide requests'
+      });
+    }
+
     const {
       selectedDestinations,
       preferredLanguage,
