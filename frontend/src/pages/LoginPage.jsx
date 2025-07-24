@@ -24,30 +24,6 @@ const LoginPage = () => {
     }
   };
 
-  const handleDemoLogin = async (userType) => {
-    setIsLoading(true);
-    try {
-      if (userType === 'tourist') {
-        setEmail('tourist@demo.com');
-        setPassword('demo123');
-        await login('tourist@demo.com', 'demo123');
-      } else if (userType === 'admin') {
-        setEmail('admin@demo.com');
-        setPassword('admin123');
-        await login('admin@demo.com', 'admin123');
-      } else if (userType === 'guide') {
-        setEmail('guide@demo.com');
-        setPassword('demo123');
-        await login('guide@demo.com', 'demo123');
-      }
-      navigate('/');
-    } catch (error) {
-      console.error('Demo login failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
@@ -60,40 +36,9 @@ const LoginPage = () => {
           <p className="text-gray-600">Welcome back to your Nepal adventure</p>
         </div>
 
-        {/* Demo Login Options */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Quick Demo Access</h3>
-          <div className="space-y-3">
-            <button
-              onClick={() => handleDemoLogin('tourist')}
-              disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
-            >
-              <User className="h-5 w-5 mr-2" />
-              🧳 Login as Demo Tourist
-            </button>
-            <button
-              onClick={() => handleDemoLogin('admin')}
-              disabled={isLoading}
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
-            >
-              <User className="h-5 w-5 mr-2" />
-              👨‍💼 Login as Demo Admin
-            </button>
-            <button
-              onClick={() => handleDemoLogin('guide')}
-              disabled={isLoading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
-            >
-              <User className="h-5 w-5 mr-2" />
-              🏔️ Login as Demo Guide
-            </button>
-          </div>
-        </div>
-
         {/* Regular Login Form */}
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Or Login with Credentials</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Login with Credentials</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
