@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mountain, Mail, Lock, User, Phone, Globe, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+import logoNepXplore from '../assets/NepXplore_favicon.png';
+
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -55,7 +57,8 @@ const RegisterPage = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white rounded-xl shadow-xl p-8">
           <div className="text-center">
-            <Mountain className="mx-auto h-12 w-12 text-blue-600" />
+            {/* <Mountain className="mx-auto h-12 w-12 text-blue-600" /> */}
+            <img src={logoNepXplore} alt="NepXplore Logo" className="h-12 object-contain mx-auto mb-4" />
             <h2 className="mt-6 text-3xl font-bold text-gray-900">Join Us</h2>
             <p className="mt-2 text-sm text-gray-600">
               Create your NepXplore account
