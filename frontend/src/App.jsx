@@ -9,6 +9,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import GuideDashboard from './pages/GuideDashboard';
 import ProfilePage from './pages/ProfilePage';
 import RequestForm from './pages/RequestForm';
+import CompleteProfilePage from './pages/CompleteProfilePage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 
@@ -25,6 +26,10 @@ function ProtectedRoute({ children, adminOnly = false }) {
   
   if (!user) {
     return <Navigate to="/login" />;
+  }
+
+  if (!user.role) {
+    return <Navigate to="/complete-profile" />;
   }
   
   if (adminOnly && user.role !== 'admin') {
@@ -64,6 +69,11 @@ function AppContent() {
         <Route path="/profile" element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/complete-profile" element={
+          <ProtectedRoute>
+            <CompleteProfilePage />
           </ProtectedRoute>
         } />
       </Routes>

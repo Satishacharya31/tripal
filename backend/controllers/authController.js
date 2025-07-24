@@ -30,6 +30,13 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
     });
 };
 
+// @desc    Google auth callback
+// @route   GET /api/auth/google/callback
+// @access  Public
+const googleCallback = (req, res) => {
+  sendTokenResponse(req.user, 200, res);
+};
+
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
@@ -271,5 +278,6 @@ module.exports = {
   logout,
   getMe,
   updateProfile,
-  changePassword
+  changePassword,
+  googleCallback,
 };

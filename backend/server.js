@@ -1,11 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-const morgan = 'morgan';
+const morgan = require('morgan');
 const compression = require('compression');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const passport = require('passport');
 require('dotenv').config();
+
+// Passport config
+require('./config/passport')(passport);
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
@@ -31,6 +36,9 @@ app.use(helmet());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Passport middleware
+app.use(passport.initialize());
 
 // Compression middleware
 app.use(compression());

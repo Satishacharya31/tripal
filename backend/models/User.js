@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  googleId: {
+    type: String,
+    required: false,
+  },
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -18,7 +22,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: false,
     minlength: [6, 'Password must be at least 6 characters'],
     select: false
   },
@@ -37,9 +41,8 @@ const userSchema = new mongoose.Schema({
     enum: ['tourist', 'guide', 'admin'],
     default: 'tourist'
   },
-  profileImage: {
+  avatar: {
     type: String,
-    default: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg'
   },
   isActive: {
     type: Boolean,

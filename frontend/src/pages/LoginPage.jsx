@@ -40,6 +40,40 @@ const LoginPage = () => {
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Login with Credentials</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <a
+              href="http://localhost:5000/api/auth/google"
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+            >
+              <svg
+                className="w-5 h-5 mr-2"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M22.56 12.25C22.56 11.42 22.49 10.62 22.36 9.84H12.27V14.4H18.16C17.86 16.08 17.03 17.54 15.69 18.46V21.09H19.6C21.56 19.23 22.56 16.08 22.56 12.25Z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M12.27 23C15.11 23 17.51 22.09 19.12 20.64L15.69 18.46C14.76 19.04 13.6 19.36 12.27 19.36C9.86 19.36 7.8 17.83 7.03 15.61H3.09V18.24C4.71 21.11 8.19 23 12.27 23Z"
+                  fill="#34A853"
+                />
+                <path
+                  d="M7.03 15.61C6.77 14.88 6.63 14.08 6.63 13.25C6.63 12.42 6.77 11.62 7.03 10.89V8.26H3.09C2.39 9.73 2 11.42 2 13.25C2 15.08 2.39 16.77 3.09 18.24L7.03 15.61Z"
+                  fill="#FBBC05"
+                />
+                <path
+                  d="M12.27 6.64C13.74 6.64 15.03 7.13 16.03 8.05L19.16 4.92C17.51 3.36 15.11 2.5 12.27 2.5C8.19 2.5 4.71 4.89 3.09 8.26L7.03 10.89C7.8 8.67 9.86 6.64 12.27 6.64Z"
+                  fill="#EA4335"
+                />
+              </svg>
+              Sign in with Google
+            </a>
+            <div className="relative flex py-5 items-center">
+              <div className="flex-grow border-t border-gray-300"></div>
+              <span className="flex-shrink mx-4 text-gray-400">Or</span>
+              <div className="flex-grow border-t border-gray-300"></div>
+            </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email Address
