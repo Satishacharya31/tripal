@@ -13,7 +13,7 @@ import CompleteProfilePage from './pages/CompleteProfilePage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 
-function ProtectedRoute({ children, adminOnly = false, allowIncomplete = false }) {
+function ProtectedRoute({ children, allowedRoles, adminOnly = false, allowIncomplete = false }) {
   const { user, loading, isAuthenticating } = useAuth();
   
   if (loading || isAuthenticating) {
@@ -33,6 +33,10 @@ function ProtectedRoute({ children, adminOnly = false, allowIncomplete = false }
   }
   
   if (adminOnly && user.role !== 'admin') {
+    return <Navigate to="/dashboard" />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/dashboard" />;
   }
   
@@ -68,7 +72,7 @@ function AppContent() {
         <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
         <Route path="/request" element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['tourist']}>
             <RequestForm />
           </ProtectedRoute>
         } />

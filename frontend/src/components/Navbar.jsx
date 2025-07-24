@@ -57,7 +57,6 @@ const Navbar = () => {
                 )}
                 {user.role === 'guide' && (
                   <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                    Guide
                   </span>
                 )}
                 <div className="relative group">
