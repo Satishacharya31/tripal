@@ -60,7 +60,7 @@ const HomePage = () => {
             className="h-24  object-contain mx-auto"
           />
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Discover the Magic of Nepal
+           See Nepal Through Local Eyes -Expert Guides
           </h1>
           <p className="text-xl md:text-2xl mb-8 opacity-90">
             Connect with expert local guides for unforgettable adventures
