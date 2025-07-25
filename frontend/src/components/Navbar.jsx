@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mountain, Menu, X, User, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+import logoNepXplore from '../assets/logo_NepXplore.png';
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
@@ -23,8 +25,8 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <Mountain className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">Nepal Guide Connect</span>
+              <img src={logoNepXplore} alt="NepXplore Logo" className=" h-12 object-contain" />
+              {/* <span className="text-xl font-bold text-gray-900">NepXplore</span> */}
             </Link>
           </div>
 
