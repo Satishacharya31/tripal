@@ -14,6 +14,7 @@ import DestinationForm from './pages/DestinationForm';
 import RequestForm from './pages/RequestForm';
 import CompleteProfilePage from './pages/CompleteProfilePage';
 import DestinationManagementPage from './pages/DestinationManagementPage';
+import GuideVerificationPage from './pages/GuideVerificationPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 
@@ -80,6 +81,7 @@ function AppContent() {
         <Route path="/admin/destinations" element={<ProtectedRoute adminOnly><DestinationManagementPage /></ProtectedRoute>} />
         <Route path="/admin/destinations/new" element={<ProtectedRoute adminOnly><DestinationForm /></ProtectedRoute>} />
         <Route path="/admin/destinations/:id/edit" element={<ProtectedRoute adminOnly><DestinationForm editMode={true} /></ProtectedRoute>} />
+        <Route path="/admin/guides/verify" element={<ProtectedRoute adminOnly><GuideVerificationPage /></ProtectedRoute>} />
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />

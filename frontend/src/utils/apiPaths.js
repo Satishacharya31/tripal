@@ -36,4 +36,8 @@ export const apiPaths = {
   // Notifications
   getNotifications: '/notifications',
   markAsRead: (id) => `/notifications/${id}/read`,
+
+  // Admin
+  adminGetGuides: '/admin/guides',
+  adminVerifyGuide: (id) => `/admin/guides/${id}/verify`,
 };

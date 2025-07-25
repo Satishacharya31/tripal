@@ -124,6 +124,25 @@ export const DataProvider = ({ children }) => {
     await fetchData(`${apiPaths.getGuides}/available/${requestId}`, setAvailableGuides);
   };
 
+  const fetchAllGuidesForVerification = async () => {
+   try {
+     const response = await api.get(apiPaths.adminGetGuides);
+     return { success: true, data: response.data.data };
+   } catch (err) {
+     return { success: false, error: err.response?.data?.message || 'Failed to fetch guides for verification' };
+   }
+ };
+
+ const verifyGuide = async (guideId) => {
+   try {
+     const response = await api.put(apiPaths.adminVerifyGuide(guideId));
+     setGuides(prev => prev.map(g => g._id === guideId ? response.data.data.guide : g));
+     return { success: true };
+   } catch (err) {
+     return { success: false, error: err.response?.data?.message || 'Failed to verify guide' };
+   }
+ };
+
   const value = {
     destinations,
     guides,
@@ -140,6 +159,8 @@ export const DataProvider = ({ children }) => {
     getNotifications,
     markNotificationAsRead,
     clearNotifications,
+    fetchAllGuidesForVerification,
+    verifyGuide,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

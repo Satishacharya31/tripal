@@ -17,8 +17,8 @@ const getGuides = async (req, res) => {
     } = req.query;
 
     // Build query
-    const query = { 
-      role: 'guide', 
+    const query = {
+      role: 'guide',
       isActive: true,
       verificationStatus: 'verified'
     };

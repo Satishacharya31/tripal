@@ -29,6 +29,7 @@ const requestRoutes = require('./routes/requests');
 const guideRoutes = require('./routes/guides');
 const notificationRoutes = require('./routes/notifications');
 const uploadRoutes = require('./routes/upload');
+const adminRoutes = require('./routes/admin');
 
 // Security middleware
 app.use(helmet());
@@ -75,6 +76,7 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/guides', guideRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
