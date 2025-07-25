@@ -1,43 +1,43 @@
 export const apiPaths = {
   // Auth
-  login: '/auth/login',
-  register: '/auth/register',
-  logout: '/auth/logout',
-  getMe: '/auth/me',
-  updateProfile: '/auth/profile',
-  changePassword: '/auth/change-password',
-  forgotPassword: '/auth/forgot-password',
-  resetPassword: '/auth/reset-password',
+  login: '/api/auth/login',
+  register: '/api/auth/register',
+  logout: '/api/auth/logout',
+  getMe: '/api/auth/me',
+  updateProfile: '/api/auth/profile',
+  changePassword: '/api/auth/change-password',
+  forgotPassword: '/api/auth/forgot-password',
+  resetPassword: '/api/auth/reset-password',
 
   // Upload
-  upload: '/upload',
+  upload: '/api/upload',
 
   // Users
-  getUsers: '/users',
-  getUser: (id) => `/users/${id}`,
+  getUsers: '/api/users',
+  getUser: (id) => `/api/users/${id}`,
 
   // Destinations
-  getDestinations: '/destinations',
-  getDestination: (id) => `/destinations/${id}`,
-  createDestination: '/destinations',
-  updateDestination: (id) => `/destinations/${id}`,
-  deleteDestination: (id) => `/destinations/${id}`,
+  getDestinations: '/api/destinations',
+  getDestination: (id) => `/api/destinations/${id}`,
+  createDestination: '/api/destinations',
+  updateDestination: (id) => `/api/destinations/${id}`,
+  deleteDestination: (id) => `/api/destinations/${id}`,
 
   // Guides
-  getGuides: '/guides',
-  getGuide: (id) => `/guides/${id}`,
-  updateGuideAvailability: (id) => `/guides/${id}/availability`,
+  getGuides: '/api/guides',
+  getGuide: (id) => `/api/guides/${id}`,
+  updateGuideAvailability: (id) => `/api/guides/${id}/availability`,
 
   // Requests
-  getRequests: '/requests',
-  createRequest: '/requests',
-  updateRequest: (id) => `/requests/${id}`,
+  getRequests: '/api/requests',
+  createRequest: '/api/requests',
+  updateRequest: (id) => `/api/requests/${id}`,
 
   // Notifications
-  getNotifications: '/notifications',
-  markAsRead: (id) => `/notifications/${id}/read`,
+  getNotifications: '/api/notifications',
+  markAsRead: (id) => `/api/notifications/${id}/read`,
 
   // Admin
-  adminGetGuides: '/admin/guides',
-  adminVerifyGuide: (id) => `/admin/guides/${id}/verify`,
+  adminGetGuides: '/api/admin/guides',
+  adminVerifyGuide: (id) => `/api/admin/guides/${id}/verify`,
 };
