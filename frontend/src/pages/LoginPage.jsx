@@ -20,7 +20,6 @@ const LoginPage = () => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
     if (token) {
-      localStorage.setItem('token', token);
       fetchUser().then(() => {
         window.history.replaceState({}, document.title, '/');
         navigate('/dashboard');
