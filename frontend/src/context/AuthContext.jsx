@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../utils/api';
+import storage from '../utils/storage';
 import { apiPaths } from '../utils/apiPaths';
 
 const AuthContext = createContext();
@@ -18,11 +19,19 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const fetchUser = async () => {
+    const token = storage.get('token');
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await api.get(apiPaths.getMe);
       setUser(response.data.data.user);
     } catch (error) {
       console.error('Session check failed:', error);
+      storage.remove('token');
       setUser(null);
     } finally {
       setLoading(false);
@@ -30,13 +39,24 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+      storage.set('token', token);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
     fetchUser();
   }, []);
 
   const login = async (email, password) => {
     setIsAuthenticating(true);
     try {
-      await api.post(apiPaths.login, { email, password });
+      const response = await api.post(apiPaths.login, { email, password });
+      if (response.data.token) {
+        storage.set('token', response.data.token);
+      }
       await fetchUser();
       return { success: true };
     } catch (error) {
@@ -49,7 +69,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     setIsAuthenticating(true);
     try {
-      await api.post(apiPaths.register, userData);
+      const response = await api.post(apiPaths.register, userData);
+      if (response.data.token) {
+        storage.set('token', response.data.token);
+      }
       await fetchUser();
       return { success: true };
     } catch (error) {
@@ -65,6 +88,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
+      storage.remove('token');
       setUser(null);
     }
   };

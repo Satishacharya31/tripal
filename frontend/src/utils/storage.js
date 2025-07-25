@@ -1,4 +1,6 @@
-import Cookies from 'js-cookie';
+// A simple storage utility that can be extended to use other storage mechanisms.
+// For now, it uses localStorage, but it can be easily swapped out for a more
+// secure or persistent storage solution in the future.
 
 const storage = {
   /**
@@ -8,7 +10,7 @@ const storage = {
    */
   get(key) {
     try {
-      return Cookies.get(key) || null;
+      return localStorage.getItem(key);
     } catch (error) {
       console.error(`Error getting item "${key}" from storage:`, error);
       return null;
@@ -22,7 +24,7 @@ const storage = {
    */
   set(key, value) {
     try {
-      Cookies.set(key, value, { expires: 7, path: '/' }); // Expires in 7 days
+      localStorage.setItem(key, value);
     } catch (error) {
       console.error(`Error setting item "${key}" in storage:`, error);
     }
@@ -34,7 +36,7 @@ const storage = {
    */
   remove(key) {
     try {
-      Cookies.remove(key, { path: '/' });
+      localStorage.removeItem(key);
     } catch (error) {
       console.error(`Error removing item "${key}" from storage:`, error);
     }
