@@ -2,22 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000',
+  withCredentials: true,
 });
-
-import storage from './storage';
-
-// Add a request interceptor to include the token in headers
-api.interceptors.request.use(
-  (config) => {
-    const token = storage.get('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
 export default api;
