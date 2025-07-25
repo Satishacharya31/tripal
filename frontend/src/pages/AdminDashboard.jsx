@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
-  const { requests, guides, availableGuides, fetchAvailableGuides, assignGuide, updateRequestStatus, updateGuide, loading: dataLoading } = useData();
+  const { requests, guides, destinations = [], availableGuides, fetchAvailableGuides, assignGuide, updateRequestStatus, updateGuide, loading: dataLoading } = useData();
   
   const [activeTab, setActiveTab] = useState('requests');
   const [searchTerm, setSearchTerm] = useState('');
@@ -146,7 +146,7 @@ const AdminDashboard = () => {
                 <span className="font-medium text-gray-700 text-sm">Selected Destinations:</span>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {request.selectedDestinations.map(dest => (
-                    <span key={dest.destination} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                    <span key={dest._id} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
                       {dest.name}
                     </span>
                   ))}
@@ -290,6 +290,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+    
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -383,6 +385,12 @@ const AdminDashboard = () => {
               >
                 Manage Guides
               </button>
+               <a
+                   href="/admin/destinations"
+                   className={`py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300`}
+               >
+                   Manage Destinations
+               </a>
             </nav>
           </div>
           
@@ -405,8 +413,8 @@ const AdminDashboard = () => {
                   <div key={guide._id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
-                        <img 
-                          src={guide.avatar} 
+                        <img
+                          src={guide.avatar}
                           alt={guide.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />

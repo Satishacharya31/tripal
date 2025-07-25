@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { 
   Calendar, 
@@ -21,24 +22,21 @@ import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 
 const GuideDashboard = () => {
-  const { requests, notifications, updateRequestStatus, getNotifications, markNotificationAsRead, clearNotifications, loading: dataLoading } = useData();
+  const { requests, notifications, updateRequestStatus, markNotificationAsRead, clearNotifications, loading: dataLoading } = useData();
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();
-  const [notification, setNotification] = useState(null);
-  const [selectedRequest, setSelectedRequest] = useState(null);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [notification, setNotification] = React.useState(null);
+  const [selectedRequest, setSelectedRequest] = React.useState(null);
+  const [showNotifications, setShowNotifications] = React.useState(false);
 
   // Get requests assigned to this guide
   const myAssignments = requests.filter(req => req.assignedGuide === user._id);
 
-  // Load notifications
-  useEffect(() => {
-    if (user) {
-      getNotifications();
-    }
-  }, [user, getNotifications]);
+  const getTourist = (touristId) => {
+    return touristId ? requests.find(req => req.touristId === touristId)?.tourist || null : null;
+  };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (location.state?.message) {
       setNotification({
         type: 'success',
@@ -322,6 +320,7 @@ const GuideDashboard = () => {
                           <h3 className="text-lg font-semibold text-gray-900">
                             {request.touristName}
                           </h3>
+                          <a href={`/tourists/${request.touristId}`} className="text-blue-600 hover:underline text-xs font-medium" target="_blank" rel="noopener noreferrer">View Tourist Profile</a>
                           <p className="text-sm text-gray-600 capitalize">
                             {request.tourType} Tour
                           </p>

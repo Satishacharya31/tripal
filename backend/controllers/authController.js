@@ -173,62 +173,69 @@ const getMe = async (req, res) => {
 // @desc    Update user profile
 // @route   PUT /api/auth/profile
 // @access  Private
+const cleanUpdateData = (data) => {
+  const cleanedData = {};
+  for (const key in data) {
+    if (data[key] !== undefined) {
+      cleanedData[key] = data[key];
+    }
+  }
+  return cleanedData;
+};
+
 const updateProfile = async (req, res) => {
   try {
     const fieldsToUpdate = {
       name: req.body.name,
       phone: req.body.phone,
-      country: req.body.country
+      country: req.body.country,
+      gender: req.body.gender,
+      profilePicture: req.body.profilePicture,
+      avatar: req.body.avatar,
+      role: req.body.role,
+      profileIncomplete: req.body.profileIncomplete,
     };
 
-    // If role is provided in the request, update it
-    if (req.body.role) {
-      fieldsToUpdate.role = req.body.role;
-    }
-
-    // If profileIncomplete is provided in the request, update it
-    if (typeof req.body.profileIncomplete !== 'undefined') {
-      fieldsToUpdate.profileIncomplete = req.body.profileIncomplete;
-    }
-
-    // Add guide-specific fields if user is a guide
     if (req.user.role === 'guide') {
-      if (req.body.specialties) fieldsToUpdate.specialties = req.body.specialties;
-      if (req.body.languages) fieldsToUpdate.languages = req.body.languages;
-      if (req.body.experience) fieldsToUpdate.experience = req.body.experience;
-      if (req.body.location) fieldsToUpdate.location = req.body.location;
-      if (req.body.bio) fieldsToUpdate.bio = req.body.bio;
-      if (req.body.available !== undefined) fieldsToUpdate.available = req.body.available;
+      fieldsToUpdate.specialties = req.body.specialties;
+      fieldsToUpdate.languages = req.body.languages;
+      fieldsToUpdate.experience = req.body.experience;
+      fieldsToUpdate.experienceYears = req.body.experienceYears;
+      fieldsToUpdate.experienceDetails = req.body.experienceDetails;
+      fieldsToUpdate.certificates = req.body.certificates;
+      fieldsToUpdate.location = req.body.location;
+      fieldsToUpdate.bio = req.body.bio;
+      fieldsToUpdate.available = req.body.available;
+      fieldsToUpdate.completedTrips = req.body.completedTrips;
     }
 
-    // Remove undefined fields
-    Object.keys(fieldsToUpdate).forEach(key => {
-      if (fieldsToUpdate[key] === undefined) {
-        delete fieldsToUpdate[key];
-      }
-    });
+    const cleanedData = cleanUpdateData(fieldsToUpdate);
 
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      fieldsToUpdate,
+      cleanedData,
       {
         new: true,
-        runValidators: true
+        runValidators: true,
       }
     );
+
+    if (!user) {
+      return res.status(404).json({ status: 'error', message: 'User not found' });
+    }
 
     res.status(200).json({
       status: 'success',
       message: 'Profile updated successfully',
       data: {
-        user: user.getPublicProfile()
-      }
+        user: user.getPublicProfile(),
+      },
     });
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(400).json({
       status: 'error',
-      message: error.message || 'Failed to update profile'
+      message: error.message || 'Failed to update profile',
     });
   }
 };

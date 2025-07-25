@@ -6,10 +6,20 @@ const compression = require('compression');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
+const cors = require('cors');
 require('dotenv').config();
 
 // Passport config
 require('./config/passport')(passport);
+
+const app = express();
+
+// CORS configuration
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+app.use(cors({
+  origin: CLIENT_URL,
+  credentials: true,
+}));
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -18,8 +28,7 @@ const destinationRoutes = require('./routes/destinations');
 const requestRoutes = require('./routes/requests');
 const guideRoutes = require('./routes/guides');
 const notificationRoutes = require('./routes/notifications');
-
-const app = express();
+const uploadRoutes = require('./routes/upload');
 
 // Security middleware
 app.use(helmet());
@@ -65,6 +74,7 @@ app.use('/api/destinations', destinationRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/guides', guideRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -75,16 +85,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve frontend files
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-// Catch-all for frontend routing, ensuring API routes are not caught
-app.get('*', (req, res, next) => {
-  if (req.originalUrl.startsWith('/api')) {
-    return next();
-  }
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-});
+// Since the frontend and backend are decoupled, the backend no longer serves static files.
+// The frontend will be hosted on a separate service like Vercel or Netlify.
 
 // 404 handler for any other requests (i.e., API routes that don't exist)
 app.use((req, res) => {
@@ -132,7 +134,7 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL}`);
+  console.log(`📱 Client URL: ${CLIENT_URL}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
 });
 
