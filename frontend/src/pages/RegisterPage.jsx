@@ -66,8 +66,8 @@ const RegisterPage = () => {
             </p>
           </div>
           
-          <a
-            href={import.meta.env.VITE_BACK_BASE_URL + "/api/auth/google"}
+          <button
+            onClick={() => window.open(`${import.meta.env.VITE_API_BASE_URL || 'https://nepxplore.onrender.com/api'}/auth/google`, "_blank", "width=500,height=600")}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center mb-6"
           >
             <svg
@@ -94,7 +94,7 @@ const RegisterPage = () => {
               />
             </svg>
             Sign up with Google
-          </a>
+          </button>
           <div className="relative flex py-5 items-center">
             <div className="flex-grow border-t border-gray-300"></div>
             <span className="flex-shrink mx-4 text-gray-400">Or</span>

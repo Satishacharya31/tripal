@@ -29,10 +29,31 @@ router.get(
   }),
   (req, res) => {
     const token = req.user.getSignedJwtToken();
-    if (req.user.profileIncomplete) {
-      return res.redirect(`${process.env.FRONTEND_URL}/complete-profile?token=${token}`);
-    }
-    res.redirect(`${process.env.FRONTEND_URL}/?token=${token}`);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    
+    // Instead of redirecting, send an HTML page that communicates with the parent window
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Authentication Success</title>
+        <script>
+          // Send the token to the parent window
+          window.opener.postMessage({
+            type: 'auth-success',
+            token: '${token}',
+            profileIncomplete: ${req.user.profileIncomplete}
+          }, '${frontendUrl}');
+          
+          // Close the popup window
+          window.close();
+        </script>
+      </head>
+      <body>
+        <p>Authentication successful. You can close this window.</p>
+      </body>
+      </html>
+    `);
   }
 );
 

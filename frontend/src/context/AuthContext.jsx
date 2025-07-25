@@ -41,6 +41,31 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    const handleAuthMessage = (event) => {
+      if (event.origin !== (import.meta.env.VITE_API_BASE_URL || 'https://nepxplore.onrender.com').split('/api')[0]) {
+        return;
+      }
+
+      const { type, token, profileIncomplete } = event.data;
+      if (type === 'auth-success' && token) {
+        storage.set('token', token);
+        fetchUser().then(() => {
+          if (profileIncomplete) {
+            // You might want to redirect to the complete profile page
+            // This can be handled by a navigation utility or directly here
+            window.location.href = '/complete-profile';
+          }
+        });
+      }
+    };
+
+    window.addEventListener('message', handleAuthMessage);
+    return () => {
+      window.removeEventListener('message', handleAuthMessage);
+    };
+  }, [fetchUser]);
+
   const login = async (email, password) => {
     setIsAuthenticating(true);
     try {
