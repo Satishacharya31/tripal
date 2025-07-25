@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mountain, User, Lock, LogIn } from 'lucide-react';
 
+import logoNepXplore from '../assets/logo_NepXplore.png';
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -78,8 +80,9 @@ const LoginPage = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <Mountain className="h-12 w-12 text-blue-600 mr-2" />
-              <h1 className="text-3xl font-bold text-gray-900">Nepal Guide Connect</h1>
+              {/* <Mountain className="h-12 w-12 text-blue-600 mr-2" /> */}
+              <img src={logoNepXplore} alt="NepXplore Logo" className="h-12 object-contain mx-auto" />
+              {/* <h1 className="text-3xl font-bold text-gray-900">NepXplore</h1> */}
             </div>
             <p className="text-gray-600">Welcome back to your Nepal adventure</p>
           </div>
