@@ -9,6 +9,8 @@ const TouristDashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const location = useLocation();
   const [notification, setNotification] = useState(null);
+  const [openGuideModal, setOpenGuideModal] = useState(false);
+  const [selectedGuide, setSelectedGuide] = useState(null);
 
   const userRequests = requests.filter(req => req.touristId === user.id);
 
@@ -43,6 +45,33 @@ const TouristDashboard = () => {
   const getAssignedGuide = (guideId) => {
     return guides.find(guide => guide.id === guideId);
   };
+
+
+
+
+
+
+
+
+
+  // Dummy work history for demonstration; replace with real data if available
+  const getGuideWorkHistory = (guideId) => {
+    // In real app, fetch from backend or guide object
+    return [
+      { id: 1, tour: 'Everest Base Camp Trek', year: 2023, rating: 4.9 },
+      { id: 2, tour: 'Annapurna Circuit', year: 2022, rating: 4.8 },
+      { id: 3, tour: 'Kathmandu Heritage Tour', year: 2024, rating: 5.0 },
+    ];
+  };
+
+
+
+
+
+
+
+
+  
 
   const getDestinationName = (destId) => {
     const destination = destinations.find(d => d.id === destId);
@@ -262,36 +291,76 @@ const TouristDashboard = () => {
                               <Star className="h-3 w-3 mr-1" />
                               {assignedGuide.rating}/5.0 • {assignedGuide.completedTrips} completed trips
                             </p>
-                            
-                            <div className="mt-2 space-y-1">
-                              <p className="text-sm text-green-600 flex items-center">
-                                <Phone className="h-3 w-3 mr-1" />
-                                {assignedGuide.phone}
-                              </p>
-                              <p className="text-sm text-green-600 flex items-center">
-                                <Mail className="h-3 w-3 mr-1" />
-                                {assignedGuide.email}
-                              </p>
-                            </div>
-
-                            <div className="mt-2">
-                              <span className="text-sm font-medium text-green-700">Specialties:</span>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {assignedGuide.specialties.map(specialty => (
-                                  <span key={specialty} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                                    {specialty}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                            
-                            {assignedGuide.bio && (
-                              <p className="text-sm text-green-700 mt-2 italic">"{assignedGuide.bio}"</p>
-                            )}
+                            <button
+                              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
+                              onClick={() => { setSelectedGuide(assignedGuide); setOpenGuideModal(true); }}
+                            >
+                              View Full Profile & Work History
+                            </button>
                           </div>
                         </div>
                       </div>
                     )}
+      {/* Guide Profile Modal */}
+      {openGuideModal && selectedGuide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={() => setOpenGuideModal(false)}
+            >
+              ×
+            </button>
+            <div className="flex items-center space-x-4 mb-4">
+              <img src={selectedGuide.profileImage} alt={selectedGuide.name} className="w-20 h-20 rounded-full object-cover border-2 border-green-200" />
+              <div>
+                <h3 className="text-2xl font-bold text-green-800">{selectedGuide.name}</h3>
+                <p className="text-sm text-green-600 flex items-center">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  {selectedGuide.experience} experience • {selectedGuide.location}
+                </p>
+                <p className="text-sm text-green-600">Languages: {selectedGuide.languages.join(', ')}</p>
+                <p className="text-sm text-green-600 flex items-center">
+                  <Star className="h-4 w-4 mr-1" />
+                  {selectedGuide.rating}/5.0 • {selectedGuide.completedTrips} completed trips
+                </p>
+              </div>
+            </div>
+            <div className="mb-4">
+              <span className="text-sm font-medium text-green-700">Specialties:</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {selectedGuide.specialties.map(specialty => (
+                  <span key={specialty} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                    {specialty}
+                  </span>
+                ))}
+              </div>
+            </div>
+            {selectedGuide.bio && (
+              <p className="text-sm text-green-700 mt-2 italic">"{selectedGuide.bio}"</p>
+            )}
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold text-gray-900 mb-2">Work History</h4>
+              <ul className="space-y-2">
+                {getGuideWorkHistory(selectedGuide.id).map(work => (
+                  <li key={work.id} className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
+                    <span className="font-medium text-gray-800">{work.tour}</span>
+                    <span className="text-gray-500 text-sm">{work.year}</span>
+                    <span className="flex items-center text-yellow-500 text-sm"><Star className="h-4 w-4 mr-1" />{work.rating}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="mt-4">
+              <span className="text-sm font-medium text-green-700">Contact:</span>
+              <div className="flex flex-col gap-1 mt-1">
+                <span className="text-sm text-green-600 flex items-center"><Phone className="h-4 w-4 mr-1" />{selectedGuide.phone}</span>
+                <span className="text-sm text-green-600 flex items-center"><Mail className="h-4 w-4 mr-1" />{selectedGuide.email}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
                     {request.status === 'pending' && (
                       <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
