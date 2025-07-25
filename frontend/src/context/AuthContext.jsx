@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../utils/api';
+import storage from '../utils/storage';
+import { apiPaths } from '../utils/apiPaths';
 
 const AuthContext = createContext();
 
@@ -16,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const fetchUser = async () => {
-    const token = localStorage.getItem('token');
+    const token = storage.get('token');
     if (!token) {
       setUser(null);
       setLoading(false);
@@ -24,20 +27,11 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`/api/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.data.user);
-      } else {
-        localStorage.removeItem('token');
-        setUser(null);
-      }
+      const response = await api.get(apiPaths.getMe);
+      setUser(response.data.data.user);
     } catch (error) {
       console.error('Session check failed:', error);
+      storage.remove('token');
       setUser(null);
     } finally {
       setLoading(false);
@@ -49,7 +43,7 @@ export const AuthProvider = ({ children }) => {
     const token = urlParams.get('token');
 
     if (token) {
-      localStorage.setItem('token', token);
+      storage.set('token', token);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
     
@@ -59,22 +53,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setIsAuthenticating(true);
     try {
-      const response = await fetch(`/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-        }
-        await fetchUser();
-        return { success: true };
+      const response = await api.post(apiPaths.login, { email, password });
+      if (response.data.token) {
+        storage.set('token', response.data.token);
       }
-      return { success: false, error: data.message };
+      await fetchUser();
+      return { success: true };
     } catch (error) {
-      return { success: false, error: 'Login failed' };
+      return { success: false, error: error.response?.data?.message || 'Login failed' };
     } finally {
       setIsAuthenticating(false);
     }
@@ -83,22 +69,14 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     setIsAuthenticating(true);
     try {
-      const response = await fetch(`/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-        }
-        await fetchUser();
-        return { success: true };
+      const response = await api.post(apiPaths.register, userData);
+      if (response.data.token) {
+        storage.set('token', response.data.token);
       }
-      return { success: false, error: data.message };
+      await fetchUser();
+      return { success: true };
     } catch (error) {
-      return { success: false, error: 'Registration failed' };
+      return { success: false, error: error.response?.data?.message || 'Registration failed' };
     } finally {
       setIsAuthenticating(false);
     }
@@ -106,36 +84,22 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch(`/api/auth/logout`, {
-        method: 'POST'
-      });
+      await api.post(apiPaths.logout);
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
-      localStorage.removeItem('token');
+      storage.remove('token');
       setUser(null);
     }
   };
 
   const updateProfile = async (profileData) => {
-    const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`/api/auth/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(profileData),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setUser(prevUser => ({ ...prevUser, ...data.data.user }));
-        return { success: true };
-      }
-      return { success: false, error: data.message };
+      const response = await api.put(apiPaths.updateProfile, profileData);
+      setUser(prevUser => ({ ...prevUser, ...response.data.data.user }));
+      return { success: true };
     } catch (error) {
-      return { success: false, error: 'Profile update failed' };
+      throw new Error(error.response?.data?.message || 'Profile update failed');
     }
   };
 

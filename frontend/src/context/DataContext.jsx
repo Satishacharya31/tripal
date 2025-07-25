@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import api from '../utils/api';
+import { apiPaths } from '../utils/apiPaths';
 
 const DataContext = createContext();
 
@@ -21,29 +23,14 @@ export const DataProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem('token');
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    return headers;
-  };
-
   const fetchData = async (endpoint, setter) => {
     try {
-      const response = await fetch(endpoint, { headers: getAuthHeaders() });
-      if (response.ok) {
-        const data = await response.json();
-        // Extract data based on possible keys
-        let result = data.data?.destinations || data.data?.guides || data.data?.requests || data.data?.notifications || data.data || [];
-        if (!Array.isArray(result)) {
-          result = [];
-        }
-        setter(result);
+      const response = await api.get(endpoint);
+      let result = response.data.data?.destinations || response.data.data?.guides || response.data.data?.requests || response.data.data?.notifications || response.data.data || [];
+      if (!Array.isArray(result)) {
+        result = [];
       }
+      setter(result);
     } catch (err) {
       setError(err.message);
     }
@@ -53,8 +40,8 @@ export const DataProvider = ({ children }) => {
     const fetchInitialData = async () => {
       setLoading(true);
       await Promise.all([
-        fetchData(`/api/destinations`, setDestinations),
-        fetchData(`/api/guides?limit=100`, setGuides), // Fetch up to 100 guides
+        fetchData(apiPaths.getDestinations, setDestinations),
+        fetchData(`${apiPaths.getGuides}?limit=100`, setGuides),
       ]);
       setLoading(false);
     };
@@ -63,8 +50,8 @@ export const DataProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      fetchData(`/api/requests`, setRequests);
-      fetchData(`/api/notifications`, setNotifications);
+      fetchData(apiPaths.getRequests, setRequests);
+      fetchData(apiPaths.getNotifications, setNotifications);
     } else {
       setRequests([]);
       setNotifications([]);
@@ -73,85 +60,48 @@ export const DataProvider = ({ children }) => {
 
   const submitRequest = async (requestData) => {
     try {
-      const response = await fetch(`/api/requests`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(requestData)
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setRequests(prev => [...prev, data.data]);
-        return { success: true, data: data.data };
-      }
-      return { success: false, error: data.message };
+      const response = await api.post(apiPaths.createRequest, requestData);
+      setRequests(prev => [...prev, response.data.data]);
+      return { success: true, data: response.data.data };
     } catch (err) {
-      return { success: false, error: 'Request submission failed' };
+      return { success: false, error: err.response?.data?.message || 'Request submission failed' };
     }
   };
 
   const assignGuide = async (requestId, guideId) => {
     try {
-      const response = await fetch(`/api/requests/${requestId}/assign`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ guideId })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setRequests(prev => prev.map(r => r._id === requestId ? data.data : r));
-        return { success: true };
-      }
-      return { success: false, error: data.message };
+      const response = await api.put(apiPaths.updateRequest(requestId), { guideId });
+      setRequests(prev => prev.map(r => r._id === requestId ? response.data.data : r));
+      return { success: true };
     } catch (err) {
-      return { success: false, error: 'Failed to assign guide' };
+      return { success: false, error: err.response?.data?.message || 'Failed to assign guide' };
     }
   };
 
   const updateRequestStatus = async (requestId, status) => {
     try {
-      const response = await fetch(`/api/requests/${requestId}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ status })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setRequests(prev => prev.map(r => r._id === requestId ? data.data : r));
-        return { success: true };
-      }
-      return { success: false, error: data.message };
+      const response = await api.put(apiPaths.updateRequest(requestId), { status });
+      setRequests(prev => prev.map(r => r._id === requestId ? response.data.data : r));
+      return { success: true };
     } catch (err) {
-      return { success: false, error: 'Failed to update status' };
+      return { success: false, error: err.response?.data?.message || 'Failed to update status' };
     }
   };
 
   const updateGuide = async (guideId, updates) => {
     try {
-      const response = await fetch(`/api/guides/${guideId}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(updates)
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setGuides(prev => prev.map(g => g._id === guideId ? data.data : g));
-        return { success: true };
-      }
-      return { success: false, error: data.message };
+      const response = await api.put(apiPaths.updateGuideAvailability(guideId), updates);
+      setGuides(prev => prev.map(g => g._id === guideId ? response.data.data.guide : g));
+      return { success: true };
     } catch (err) {
-      return { success: false, error: 'Failed to update guide' };
+      return { success: false, error: err.response?.data?.message || 'Failed to update guide' };
     }
   };
 
   const markNotificationAsRead = async (notificationId) => {
     try {
-      const response = await fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'PUT',
-        headers: getAuthHeaders()
-      });
-      if (response.ok) {
-        setNotifications(prev => prev.map(n => n._id === notificationId ? { ...n, read: true } : n));
-      }
+      await api.put(apiPaths.markAsRead(notificationId));
+      setNotifications(prev => prev.map(n => n._id === notificationId ? { ...n, read: true } : n));
     } catch (err) {
       console.error('Failed to mark notification as read', err);
     }
@@ -159,24 +109,19 @@ export const DataProvider = ({ children }) => {
 
   const clearNotifications = async () => {
     try {
-      const response = await fetch(`/api/notifications`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
-      if (response.ok) {
-        setNotifications([]);
-      }
+      await api.delete(apiPaths.getNotifications);
+      setNotifications([]);
     } catch (err) {
       console.error('Failed to clear notifications', err);
     }
   };
 
   const getNotifications = async () => {
-    await fetchData(`/api/notifications`, setNotifications);
+    await fetchData(apiPaths.getNotifications, setNotifications);
   };
 
   const fetchAvailableGuides = async (requestId) => {
-    await fetchData(`/api/guides/available/${requestId}`, setAvailableGuides);
+    await fetchData(`${apiPaths.getGuides}/available/${requestId}`, setAvailableGuides);
   };
 
   const value = {

@@ -44,6 +44,10 @@ const TouristDashboard = () => {
     return guides.find(guide => guide.id === guideId);
   };
 
+  const getGuideProfileLink = (guideId) => {
+    return `/guides/${guideId}`;
+  };
+
   const getDestinationName = (destId) => {
     const destination = destinations.find(d => d.id === destId);
     return destination ? destination.name : `Destination ${destId}`;
@@ -250,7 +254,9 @@ const TouristDashboard = () => {
                             className="w-16 h-16 rounded-full object-cover border-2 border-green-200"
                           />
                           <div className="flex-1">
-                            <p className="font-medium text-green-800 text-lg">{assignedGuide.name}</p>
+                            <Link to={`/guides/${assignedGuide.id}`} className="font-medium text-green-800 text-lg hover:underline">
+  {assignedGuide.name}
+</Link>
                             <p className="text-sm text-green-600 flex items-center">
                               <MapPin className="h-3 w-3 mr-1" />
                               {assignedGuide.experience} experience • {assignedGuide.location}

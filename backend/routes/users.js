@@ -159,4 +159,40 @@ router.delete('/:id', restrictTo('admin'), async (req, res) => {
   }
 });
 
+// @desc    Get tourist profile with all requests (and assigned guides)
+// @route   GET /api/users/:id/with-requests
+// @access  Private (guides/admin/tourist themselves)
+router.get('/:id/with-requests', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) return res.status(404).json({ status: 'error', message: 'User not found' });
+
+    // Only allow access if admin, guide, or the user themselves
+    if (
+      req.user.role !== 'admin' &&
+      req.user.role !== 'guide' &&
+      req.user._id.toString() !== user._id.toString()
+    ) {
+      return res.status(403).json({ status: 'error', message: 'Forbidden' });
+    }
+
+    // Get all requests for this tourist, populate assignedGuide
+    const Request = require('../models/Request');
+    const requests = await Request.find({ tourist: user._id })
+      .populate('assignedGuide', 'name profilePicture avatar email phone country specialties languages rating bio')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        user,
+        requests
+      }
+    });
+  } catch (error) {
+    console.error('Get tourist with requests error:', error);
+    res.status(500).json({ status: 'error', message: 'Failed to fetch tourist and requests' });
+  }
+});
+
 module.exports = router;
