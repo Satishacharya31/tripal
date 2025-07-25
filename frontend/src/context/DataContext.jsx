@@ -26,7 +26,20 @@ export const DataProvider = ({ children }) => {
   const fetchData = async (endpoint, setter) => {
     try {
       const response = await api.get(endpoint);
-      let result = response.data.data?.destinations || response.data.data?.guides || response.data.data?.requests || response.data.data?.notifications || response.data.data || [];
+      let result = [];
+      if (response.data.data) {
+        if (response.data.data.destinations) {
+          result = response.data.data.destinations;
+        } else if (response.data.data.guides) {
+          result = response.data.data.guides;
+        } else if (response.data.data.requests) {
+          result = response.data.data.requests;
+        } else if (response.data.data.notifications) {
+          result = response.data.data.notifications;
+        } else {
+          result = response.data.data;
+        }
+      }
       if (!Array.isArray(result)) {
         result = [];
       }
@@ -61,7 +74,7 @@ export const DataProvider = ({ children }) => {
   const submitRequest = async (requestData) => {
     try {
       const response = await api.post(apiPaths.createRequest, requestData);
-      setRequests(prev => [...prev, response.data.data]);
+      await refreshData();
       return { success: true, data: response.data.data };
     } catch (err) {
       return { success: false, error: err.response?.data?.message || 'Request submission failed' };
@@ -71,7 +84,7 @@ export const DataProvider = ({ children }) => {
   const assignGuide = async (requestId, guideId) => {
     try {
       const response = await api.put(apiPaths.assignGuideToRequest(requestId), { guideId });
-      setRequests(prev => prev.map(r => r._id === requestId ? response.data.data : r));
+      await refreshData();
       return { success: true };
     } catch (err) {
       return { success: false, error: err.response?.data?.message || 'Failed to assign guide' };
@@ -80,8 +93,8 @@ export const DataProvider = ({ children }) => {
 
   const updateRequestStatus = async (requestId, status) => {
     try {
-      const response = await api.put(apiPaths.updateRequest(requestId), { status });
-      setRequests(prev => prev.map(r => r._id === requestId ? response.data.data : r));
+      const response = await api.put(apiPaths.updateRequestStatus(requestId), { status });
+      await refreshData();
       return { success: true };
     } catch (err) {
       return { success: false, error: err.response?.data?.message || 'Failed to update status' };
@@ -120,6 +133,17 @@ export const DataProvider = ({ children }) => {
     await fetchData(apiPaths.getNotifications, setNotifications);
   };
 
+  const refreshData = async () => {
+    setLoading(true);
+    await Promise.all([
+      fetchData(apiPaths.getDestinations, setDestinations),
+      fetchData(`${apiPaths.getGuides}?limit=100`, setGuides),
+      fetchData(apiPaths.getRequests, setRequests),
+      fetchData(apiPaths.getNotifications, setNotifications),
+    ]);
+    setLoading(false);
+  };
+
   const fetchAvailableGuides = async (requestId) => {
     await fetchData(`${apiPaths.getGuides}/available/${requestId}`, setAvailableGuides);
   };
@@ -136,7 +160,7 @@ export const DataProvider = ({ children }) => {
  const verifyGuide = async (guideId) => {
    try {
      const response = await api.put(apiPaths.adminVerifyGuide(guideId));
-     setGuides(prev => prev.map(g => g._id === guideId ? response.data.data.guide : g));
+     await refreshData();
      return { success: true };
    } catch (err) {
      return { success: false, error: err.response?.data?.message || 'Failed to verify guide' };
@@ -161,6 +185,7 @@ export const DataProvider = ({ children }) => {
     clearNotifications,
     fetchAllGuidesForVerification,
     verifyGuide,
+    refreshData,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

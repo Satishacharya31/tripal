@@ -137,7 +137,7 @@ const getRequests = async (req, res) => {
     // Execute query with pagination
     const requests = await Request.find(query)
       .populate('tourist', 'name email')
-      .populate('assignedGuide', 'name email')
+      .populate('assignedGuide', 'name email profilePicture avatar')
       .sort(sort)
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -336,10 +336,28 @@ const updateRequestStatus = async (req, res) => {
     }
 
     // Check permissions
-    if (req.user.role === 'guide' && request.assignedGuide?.toString() !== req.user._id.toString()) {
+    const isOwner = request.tourist.toString() === req.user._id.toString();
+    const isAssignedGuide = request.assignedGuide?.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isAdmin && !isAssignedGuide && !isOwner) {
       return res.status(403).json({
         status: 'error',
-        message: 'Access denied'
+        message: 'You are not authorized to perform this action'
+      });
+    }
+
+    if (isOwner && !['in-progress', 'cancelled'].includes(status)) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'You can only start or cancel the tour'
+      });
+    }
+
+    if (isAssignedGuide && !['completed', 'in-progress'].includes(status)) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'You can only mark the tour as in-progress or completed'
       });
     }
 

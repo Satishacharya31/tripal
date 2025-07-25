@@ -30,7 +30,7 @@ const GuideDashboard = () => {
   const [showNotifications, setShowNotifications] = React.useState(false);
 
   // Get requests assigned to this guide
-  const myAssignments = requests.filter(req => req.assignedGuide?._id === user._id);
+  const myAssignments = user ? requests.filter(req => req.assignedGuide?._id === user._id) : [];
 
   const getTourist = (touristId) => {
     return touristId ? requests.find(req => req.touristId === touristId)?.tourist || null : null;

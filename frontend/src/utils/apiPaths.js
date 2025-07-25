@@ -31,7 +31,7 @@ export const apiPaths = {
   // Requests
   getRequests: '/api/requests',
   createRequest: '/api/requests',
-  updateRequest: (id) => `/api/requests/${id}`,
+  updateRequestStatus: (id) => `/api/requests/${id}/status`,
   assignGuideToRequest: (id) => `/api/requests/${id}/assign`,
 
   // Notifications

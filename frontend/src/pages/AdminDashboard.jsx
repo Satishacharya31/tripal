@@ -14,12 +14,12 @@ const AdminDashboard = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showGuideModal, setShowGuideModal] = useState(false);
 
-  const filteredRequests = requests.filter(request => {
+  const filteredRequests = requests ? requests.filter(request => {
     const matchesSearch = request.touristName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          request.tourType.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
     return matchesSearch && matchesStatus;
-  });
+  }) : [];
 
   const getStatusColor = (status) => {
     switch (status) {

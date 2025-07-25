@@ -12,7 +12,7 @@ const TouristDashboard = () => {
   const [openGuideModal, setOpenGuideModal] = useState(false);
   const [selectedGuide, setSelectedGuide] = useState(null);
 
-  const userRequests = requests.filter(req => req.tourist?._id === user._id);
+  const userRequests = requests && user ? requests.filter(req => req.tourist?._id === user._id) : [];
 
   useEffect(() => {
     if (location.state?.message) {
@@ -69,9 +69,8 @@ const TouristDashboard = () => {
 
 
   
-  const getDestinationName = (destId) => {
-    const destination = destinations.find(d => d.id === destId);
-    return destination ? destination.name : `Destination ${destId}`;
+  const getDestination = (destId) => {
+    return destinations.find(d => d._id === destId);
   };
 
   if (authLoading || dataLoading) {
@@ -236,12 +235,20 @@ const TouristDashboard = () => {
                 {/* Selected Destinations */}
                 <div className="mb-4">
                   <span className="text-sm font-medium text-gray-700">Selected Destinations:</span>
-                  <div className="flex flex-wrap gap-2 mt-1">
-              {request.selectedDestinations.map(destId => (
-                <span key={destId} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                  {getDestinationName(destId)}
-                </span>
-              ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    {request.selectedDestinations.map(destId => {
+                      const destination = getDestination(destId);
+                      if (!destination) return null;
+                      return (
+                        <div key={destId} className="flex items-center bg-gray-100 p-2 rounded-lg">
+                          <img src={destination.image} alt={destination.name} className="w-12 h-12 rounded-md object-cover mr-3" />
+                          <div>
+                            <p className="font-semibold text-gray-800">{destination.name}</p>
+                            <p className="text-xs text-gray-500">{destination.location}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
                 
@@ -272,8 +279,8 @@ const TouristDashboard = () => {
                 Your Assigned Guide
               </h4>
               <div className="flex items-start space-x-4">
-                <img 
-                  src={assignedGuide.profileImage} 
+                <img
+                  src={assignedGuide.profilePicture || assignedGuide.avatar || `https://ui-avatars.com/api/?name=${assignedGuide.name}&background=0D8ABC&color=fff`}
                   alt={assignedGuide.name}
                   className="w-16 h-16 rounded-full object-cover border-2 border-green-200"
                 />
@@ -313,7 +320,7 @@ const TouristDashboard = () => {
                 ×
               </button>
               <div className="flex items-center space-x-4 mb-4">
-                <img src={selectedGuide.profileImage} alt={selectedGuide.name} className="w-20 h-20 rounded-full object-cover border-2 border-green-200" />
+                <img src={selectedGuide.profilePicture || selectedGuide.avatar} alt={selectedGuide.name} className="w-20 h-20 rounded-full object-cover border-2 border-green-200" />
                 <div>
             <h3 className="text-2xl font-bold text-green-800">{selectedGuide.name}</h3>
             <p className="text-sm text-green-600 flex items-center">
