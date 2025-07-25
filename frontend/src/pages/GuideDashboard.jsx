@@ -118,10 +118,18 @@ const GuideDashboard = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome, {user.name}! 🏔️</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome, {user.name}! 🏔️</h1>
             
-            {/* Notification Bell */}
-            <div className="relative">
+            <div className="flex items-center space-x-4">
+              <Link 
+                to="/profile-edit"
+                className="bg-white text-gray-700 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors flex items-center shadow-sm border border-gray-200 text-sm font-medium"
+              >
+                <User className="h-4 w-4 mr-2" />
+                Edit Profile
+              </Link>
+              {/* Notification Bell */}
+              <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
@@ -502,6 +510,7 @@ const GuideDashboard = () => {
           ></div>
         )}
       </div>
+    </div>
     </div>
   );
 };

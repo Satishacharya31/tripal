@@ -190,7 +190,7 @@ const TouristDashboard = () => {
                 const assignedGuide = request.assignedGuide ? getAssignedGuide(request.assignedGuide) : null;
                 
                 return (
-                  <div key={request.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                  <div key={request.id} className="p-6 hover:bg-gray-50 transition-colors duration-200 rounded-lg">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
                         <StatusIcon className="h-6 w-6 text-gray-400" />
@@ -250,8 +250,8 @@ const TouristDashboard = () => {
                         <span className="text-sm font-medium text-gray-700">Special Interests:</span>
                         <div className="flex flex-wrap gap-2 mt-1">
                           {request.specialInterests.map((interest, index) => (
-                            <span key={interest} className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">
-                              {interest}
+                            <span key={interest.id || `interest-${index}`} className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">
+                              {interest.name || interest}
                             </span>
                           ))}
                         </div>
@@ -330,9 +330,9 @@ const TouristDashboard = () => {
             <div className="mb-4">
               <span className="text-sm font-medium text-green-700">Specialties:</span>
               <div className="flex flex-wrap gap-1 mt-1">
-                {selectedGuide.specialties.map(specialty => (
-                  <span key={specialty} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                    {specialty}
+                {selectedGuide.specialties.map((specialty, index) => (
+                  <span key={specialty.id || `specialty-${index}`} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                    {specialty.name || specialty}
                   </span>
                 ))}
               </div>

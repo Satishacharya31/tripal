@@ -25,7 +25,6 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
     .json({
       status: 'success',
       message,
-      token, // include token in response body
       data: {
         user: user.getPublicProfile()
       }
@@ -45,7 +44,7 @@ const googleCallback = (req, res) => {
 // @access  Public
 const register = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -58,6 +57,7 @@ const register = async (req, res) => {
 
     // Create user data
     const userData = {
+      name,
       email,
       password,
       profileIncomplete: true, // Mark profile as incomplete

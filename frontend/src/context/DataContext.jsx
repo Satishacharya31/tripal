@@ -70,7 +70,7 @@ export const DataProvider = ({ children }) => {
 
   const assignGuide = async (requestId, guideId) => {
     try {
-      const response = await api.put(apiPaths.updateRequest(requestId), { guideId });
+      const response = await api.put(apiPaths.assignGuideToRequest(requestId), { guideId });
       setRequests(prev => prev.map(r => r._id === requestId ? response.data.data : r));
       return { success: true };
     } catch (err) {

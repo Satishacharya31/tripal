@@ -262,24 +262,19 @@ const getAvailableGuides = async (req, res) => {
       });
     }
 
-    // Find guides that match request criteria
-    const matchingGuides = await User.find({
+    // Find all available guides, without filtering by request criteria
+    const availableGuides = await User.find({
       role: 'guide',
       isActive: true,
       available: true,
-      verificationStatus: 'verified',
-      $or: [
-        { languages: { $in: [request.preferredLanguage] } },
-        { specialties: { $in: [request.tourType] } },
-        { specialties: { $in: request.specialInterests || [] } }
-      ]
+      verificationStatus: 'verified'
     }).select('-password').sort('-rating');
 
     res.status(200).json({
       status: 'success',
-      results: matchingGuides.length,
+      results: availableGuides.length,
       data: {
-        guides: matchingGuides,
+        guides: availableGuides,
         request: {
           id: request._id,
           tourType: request.tourType,

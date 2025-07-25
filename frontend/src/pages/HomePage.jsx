@@ -152,7 +152,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Destinations Section */}
+      /* Destinations Section */
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -243,7 +243,9 @@ const HomePage = () => {
                       </span>
                       <div className="flex items-center text-yellow-500">
                         <Star className="h-4 w-4 fill-current" />
-                        <span className="ml-1 text-sm text-gray-600">4.8</span>
+                        <span className="ml-1 text-sm text-gray-600">
+                          {destination.rating ? destination.rating.toFixed(1) : "4.0"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -253,8 +255,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
-      {/* CTA Section */}
       <section className="py-20 bg-blue-900 text-white">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold mb-6">

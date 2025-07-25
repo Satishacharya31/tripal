@@ -260,26 +260,39 @@ const assignGuide = async (req, res) => {
     await guide.save();
 
     // Notify guide about assignment
-    await Notification.createNotification({
-      recipient: guideId,
-      type: 'assignment',
-      title: 'New Tour Assignment!',
-      message: `You have been assigned to ${request.touristName}'s ${request.tourType} tour`,
-      relatedRequest: request._id,
-      relatedUser: request.tourist,
-      priority: 'high'
-    });
+    try {
+      if (guideId) {
+        await Notification.createNotification({
+          recipient: guideId,
+          type: 'assignment',
+          title: 'New Tour Assignment!',
+          message: `You have been assigned to ${request.touristName}'s ${request.tourType} tour`,
+          relatedRequest: request._id,
+          relatedUser: request.tourist,
+          priority: 'high'
+        });
+      }
+    } catch (notificationError) {
+      console.error('Failed to send notification to guide:', notificationError);
+      // Decide if this should be a critical failure or just a logged warning
+    }
 
     // Notify tourist about assignment
-    await Notification.createNotification({
-      recipient: request.tourist,
-      type: 'assignment',
-      title: 'Guide Assigned!',
-      message: `${guide.name} has been assigned as your guide for the ${request.tourType} tour`,
-      relatedRequest: request._id,
-      relatedUser: guideId,
-      priority: 'high'
-    });
+    try {
+      if (request.tourist) {
+        await Notification.createNotification({
+          recipient: request.tourist,
+          type: 'assignment',
+          title: 'Guide Assigned!',
+          message: `${guide.name} has been assigned as your guide for the ${request.tourType} tour`,
+          relatedRequest: request._id,
+          relatedUser: guideId,
+          priority: 'high'
+        });
+      }
+    } catch (notificationError) {
+      console.error('Failed to send notification to tourist:', notificationError);
+    }
 
     res.status(200).json({
       status: 'success',

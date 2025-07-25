@@ -15,6 +15,7 @@ import RequestForm from './pages/RequestForm';
 import CompleteProfilePage from './pages/CompleteProfilePage';
 import DestinationManagementPage from './pages/DestinationManagementPage';
 import GuideVerificationPage from './pages/GuideVerificationPage';
+import GuideProfileEdit from './pages/GuideProfileEdit';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 
@@ -105,6 +106,11 @@ function AppContent() {
         <Route path="/profile" element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile-edit" element={
+          <ProtectedRoute allowedRoles={['guide']}>
+            <GuideProfileEdit />
           </ProtectedRoute>
         } />
         <Route path="/complete-profile" element={
