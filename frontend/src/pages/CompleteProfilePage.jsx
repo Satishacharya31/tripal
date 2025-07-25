@@ -12,6 +12,11 @@ const CompleteProfilePage = () => {
     phone: user?.phone || '',
     country: user?.country || '',
     role: user?.role || 'tourist',
+    gender: user?.gender || '',
+    experience: user?.experience || '',
+    certificates: user?.certificates || [],
+    completedTrips: user?.completedTrips || 0,
+    profilePicture: user?.profilePicture || ''
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -75,6 +80,39 @@ const CompleteProfilePage = () => {
 
         <div className="bg-white rounded-xl shadow-lg p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Profile Picture Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
+              {formData.profilePicture && (
+                <div className="mb-2">
+                  <img src={formData.profilePicture} alt="Preview" className="w-20 h-20 rounded-full object-cover border" />
+                </div>
+              )}
+              <input type="file" accept="image/*" onChange={async e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                setIsLoading(true);
+                const formDataUpload = new FormData();
+                formDataUpload.append('image', file);
+                try {
+                  const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formDataUpload,
+                    credentials: 'include'
+                  });
+                  const data = await res.json();
+                  if (data.status === 'success') {
+                    setFormData(prev => ({ ...prev, profilePicture: data.url }));
+                  } else {
+                    alert(data.message || 'Upload failed');
+                  }
+                } catch (err) {
+                  alert('Image upload failed. Try again.');
+                }
+                setIsLoading(false);
+              }} />
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">I am a</label>
               <div className="flex space-x-4">
@@ -159,6 +197,65 @@ const CompleteProfilePage = () => {
                 />
               </div>
             </div>
+
+            {/* Gender Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            {/* Guide-specific fields */}
+            {formData.role === 'guide' && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Experience</label>
+                  <textarea
+                    name="experience"
+                    value={formData.experience}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={2}
+                    placeholder="Describe your experience"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Certificates / Certifications</label>
+                  <textarea
+                    name="certificates"
+                    value={Array.isArray(formData.certificates) ? formData.certificates.join('\n') : formData.certificates}
+                    onChange={e => setFormData(prev => ({ ...prev, certificates: e.target.value.split('\n') }))}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={2}
+                    placeholder="List certificates, one per line"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Completed Trips</label>
+                  <input
+                    type="number"
+                    name="completedTrips"
+                    value={formData.completedTrips}
+                    min={0}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+              </>
+            )}
+
 
             <button
               type="submit"

@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema({
     required: function() { return !this.profileIncomplete; },
     trim: true
   },
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'other'],
+    required: function() { return !this.profileIncomplete; }
+  },
   profileIncomplete: {
     type: Boolean,
     default: false
@@ -51,6 +56,13 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
+    default: function() {
+      // Use Google avatar if available, otherwise default placeholder
+      return this.googleId ? `https://ui-avatars.com/api/?name=${encodeURIComponent(this.name || 'User')}&background=0D8ABC&color=fff` : null;
+    }
+  },
+  profilePicture: {
+    type: String, // URL to uploaded profile picture
   },
   isActive: {
     type: Boolean,
@@ -72,6 +84,38 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '1 year'
   },
+  experienceYears: {
+    type: Number,
+    default: 1,
+    min: 0
+  },
+  experienceDetails: {
+    type: String,
+    maxlength: [1000, 'Experience details cannot exceed 1000 characters']
+  },
+  certificates: [{
+    name: {
+      type: String,
+      required: true
+    },
+    issuedBy: {
+      type: String,
+      required: true
+    },
+    issuedDate: {
+      type: Date
+    },
+    expiryDate: {
+      type: Date
+    },
+    certificateUrl: {
+      type: String // URL to certificate image/document
+    },
+    verified: {
+      type: Boolean,
+      default: false
+    }
+  }],
   rating: {
     type: Number,
     default: 4.5,
@@ -133,9 +177,40 @@ userSchema.methods.updateLastLogin = function() {
 
 // Get public profile (exclude sensitive data)
 userSchema.methods.getPublicProfile = function() {
-  const user = this.toObject();
-  delete user.password;
-  return user;
+  const userObject = this.toObject();
+  const publicProfile = {
+    _id: userObject._id,
+    googleId: userObject.googleId,
+    name: userObject.name,
+    email: userObject.email,
+    phone: userObject.phone,
+    country: userObject.country,
+    gender: userObject.gender,
+    role: userObject.role,
+    avatar: userObject.avatar,
+    profilePicture: userObject.profilePicture,
+    isActive: userObject.isActive,
+    lastLogin: userObject.lastLogin,
+    createdAt: userObject.createdAt,
+    updatedAt: userObject.updatedAt,
+  };
+
+  if (this.role === 'guide') {
+    publicProfile.specialties = userObject.specialties;
+    publicProfile.languages = userObject.languages;
+    publicProfile.experience = userObject.experience;
+    publicProfile.experienceYears = userObject.experienceYears;
+    publicProfile.experienceDetails = userObject.experienceDetails;
+    publicProfile.certificates = userObject.certificates;
+    publicProfile.rating = userObject.rating;
+    publicProfile.available = userObject.available;
+    publicProfile.location = userObject.location;
+    publicProfile.bio = userObject.bio;
+    publicProfile.completedTrips = userObject.completedTrips;
+    publicProfile.verificationStatus = userObject.verificationStatus;
+  }
+
+  return publicProfile;
 };
 
 // Sign JWT and return

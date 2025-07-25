@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, UserCheck, Clock, CheckCircle, Search, Filter, Eye, UserPlus, MapPin, Calendar, Phone, Mail } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
-  const { requests, guides, assignGuide, updateRequestStatus, updateGuide, loading: dataLoading } = useData();
+  const { requests, guides, destinations = [], availableGuides, fetchAvailableGuides, assignGuide, updateRequestStatus, updateGuide, loading: dataLoading } = useData();
   
   const [activeTab, setActiveTab] = useState('requests');
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,16 +29,22 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleAssignGuide = (requestId, guideId) => {
-    assignGuide(requestId, guideId);
-    const request = requests.find(r => r.id === requestId);
-    const guide = guides.find(g => g.id === guideId);
-    
-    // Show success message to admin
-    if (request && guide) {
-      setMessage({ 
-        type: 'success', 
-        text: `Successfully assigned ${guide.name} to ${request.touristName}'s ${request.tourType} tour. The guide has been notified.` 
+  const handleAssignGuide = async (requestId, guideId) => {
+    const result = await assignGuide(requestId, guideId);
+    if (result.success) {
+      const request = requests.find(r => r._id === requestId);
+      const guide = guides.find(g => g._id === guideId);
+      
+      if (request && guide) {
+        setMessage({ 
+          type: 'success', 
+          text: `Successfully assigned ${guide.name} to ${request.touristName}'s ${request.tourType} tour. The guide has been notified.` 
+        });
+      }
+    } else {
+      setMessage({
+        type: 'error',
+        text: result.error || 'Failed to assign guide.'
       });
     }
     setTimeout(() => setMessage(null), 5000);
@@ -49,18 +55,11 @@ const AdminDashboard = () => {
   
   const [message, setMessage] = useState(null);
 
-  const getAvailableGuides = (request) => {
-    return guides.filter(guide => {
-      const matchesLanguage = guide.languages.includes(request.preferredLanguage);
-      const matchesSpecialty = guide.specialties.some(specialty => 
-        specialty === request.tourType || 
-        request.specialInterests.some(interest => 
-          interest.toLowerCase().includes(specialty.toLowerCase())
-        )
-      );
-      return guide.available && (matchesLanguage || matchesSpecialty);
-    });
-  };
+  useEffect(() => {
+    if (selectedRequest) {
+      fetchAvailableGuides(selectedRequest._id);
+    }
+  }, [selectedRequest, fetchAvailableGuides]);
 
   const renderRequestsTab = () => (
     <div className="space-y-6">
@@ -98,7 +97,7 @@ const AdminDashboard = () => {
           </div>
         ) : (
           filteredRequests.map(request => (
-            <div key={request.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+            <div key={request._id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{request.touristName}</h3>
@@ -108,7 +107,7 @@ const AdminDashboard = () => {
                   </p>
                   <p className="text-sm text-gray-500 flex items-center mt-1">
                     <Calendar className="h-4 w-4 mr-1" />
-                    Submitted: {new Date(request.submittedAt).toLocaleDateString()}
+                    Submitted: {new Date(request.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -146,14 +145,11 @@ const AdminDashboard = () => {
               <div className="mb-4">
                 <span className="font-medium text-gray-700 text-sm">Selected Destinations:</span>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {request.selectedDestinations.map(destId => {
-                    const destination = request.destinationNames?.find(d => d.id === destId);
-                    return (
-                      <span key={destId} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                        {destination?.name || `Destination ${destId}`}
-                      </span>
-                    );
-                  })}
+                  {request.selectedDestinations.map(dest => (
+                    <span key={dest._id} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                      {dest.name}
+                    </span>
+                  ))}
                 </div>
               </div>
               
@@ -177,13 +173,13 @@ const AdminDashboard = () => {
                   <h4 className="font-semibold text-green-800 mb-2">Assigned Guide</h4>
                   <div className="flex items-center space-x-3">
                     <img 
-                      src={guides.find(g => g.id === request.assignedGuide)?.profileImage} 
+                      src={guides.find(g => g._id === request.assignedGuide)?.avatar} 
                       alt="Guide"
                       className="w-10 h-10 rounded-full object-cover"
                     />
                     <div>
-                      <p className="text-green-700 font-medium">{guides.find(g => g.id === request.assignedGuide)?.name}</p>
-                      <p className="text-green-600 text-sm">{guides.find(g => g.id === request.assignedGuide)?.phone}</p>
+                      <p className="text-green-700 font-medium">{guides.find(g => g._id === request.assignedGuide)?.name}</p>
+                      <p className="text-green-600 text-sm">{guides.find(g => g._id === request.assignedGuide)?.phone}</p>
                     </div>
                   </div>
                 </div>
@@ -199,11 +195,11 @@ const AdminDashboard = () => {
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {guides.map(guide => (
-          <div key={guide.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+          <div key={guide._id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <img 
-                  src={guide.profileImage} 
+                  src={guide.avatar} 
                   alt={guide.name}
                   className="w-12 h-12 rounded-full object-cover"
                 />
@@ -268,7 +264,7 @@ const AdminDashboard = () => {
             
             <div className="flex justify-end space-x-2">
               <button
-                onClick={() => updateGuide(guide.id, { available: !guide.available })}
+                onClick={() => updateGuide(guide._id, { available: !guide.available })}
                 className={`px-3 py-1 text-sm rounded-md transition-colors ${
                   guide.available 
                     ? 'bg-red-100 text-red-700 hover:bg-red-200' 
@@ -294,6 +290,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+    
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -387,6 +385,18 @@ const AdminDashboard = () => {
               >
                 Manage Guides
               </button>
+               <a
+                   href="/admin/destinations"
+                   className={`py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300`}
+               >
+                   Manage Destinations
+               </a>
+               <a
+                   href="/admin/guides/verify"
+                   className={`py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300`}
+               >
+                   Verify Guides
+               </a>
             </nav>
           </div>
           
@@ -405,12 +415,12 @@ const AdminDashboard = () => {
               </h3>
               
               <div className="space-y-4 mb-6">
-                {getAvailableGuides(selectedRequest).map(guide => (
-                  <div key={guide.id} className="border border-gray-200 rounded-lg p-4">
+                {availableGuides.map(guide => (
+                  <div key={guide._id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
-                        <img 
-                          src={guide.profileImage} 
+                        <img
+                          src={guide.avatar}
                           alt={guide.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />
@@ -429,7 +439,7 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       <button
-                        onClick={() => handleAssignGuide(selectedRequest.id, guide.id)}
+                        onClick={() => handleAssignGuide(selectedRequest._id, guide._id)}
                         className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
                       >
                         Assign
@@ -441,7 +451,7 @@ const AdminDashboard = () => {
                   </div>
                 ))}
                 
-                {getAvailableGuides(selectedRequest).length === 0 && (
+                {availableGuides.length === 0 && (
                   <div className="text-center py-8">
                     <p className="text-gray-500">No available guides match the requirements for this request.</p>
                     <p className="text-sm text-gray-400 mt-2">Consider assigning a guide with similar skills or contact the tourist to modify requirements.</p>

@@ -75,21 +75,26 @@ const RequestForm = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const requestData = {
       ...formData,
-      touristId: user.id,
+      touristId: user._id,
       touristName: user.name,
       touristEmail: user.email
     };
     
-    const newRequest = submitRequest(requestData);
-    navigate('/dashboard', { 
-      state: { 
-        message: 'Your guide request has been submitted successfully! We will match you with a suitable guide soon.',
-        requestId: newRequest.id
-      }
-    });
+    const result = await submitRequest(requestData);
+    if (result.success) {
+      navigate('/dashboard', { 
+        state: { 
+          message: 'Your guide request has been submitted successfully! We will match you with a suitable guide soon.',
+          requestId: result.data._id
+        }
+      });
+    } else {
+      // Handle error, e.g., show a notification
+      console.error("Failed to submit request:", result.error);
+    }
   };
 
   const isStepValid = () => {
@@ -117,10 +122,10 @@ const RequestForm = () => {
       <div className="grid md:grid-cols-2 gap-4">
         {destinations.map(destination => (
           <div
-            key={destination.id}
-            onClick={() => handleDestinationToggle(destination.id)}
+            key={destination._id}
+            onClick={() => handleDestinationToggle(destination._id)}
             className={`cursor-pointer rounded-lg border-2 transition-all duration-200 ${
-              formData.selectedDestinations.includes(destination.id)
+              formData.selectedDestinations.includes(destination._id)
                 ? 'border-blue-500 bg-blue-50'
                 : 'border-gray-200 hover:border-gray-300'
             }`}
@@ -138,7 +143,7 @@ const RequestForm = () => {
                   {destination.category}
                 </span>
               </div>
-              {formData.selectedDestinations.includes(destination.id) && (
+              {formData.selectedDestinations.includes(destination._id) && (
                 <CheckCircle className="h-6 w-6 text-blue-500" />
               )}
             </div>
@@ -332,7 +337,7 @@ const RequestForm = () => {
             <p><strong>Selected Destinations:</strong> {
               formData.selectedDestinations.length > 0 
                 ? formData.selectedDestinations.map(id => 
-                    destinations.find(d => d.id === id)?.name
+                    destinations.find(d => d._id === id)?.name
                   ).join(', ')
                 : 'None selected'
             }</p>

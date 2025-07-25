@@ -91,6 +91,7 @@ const getDestination = async (req, res) => {
 // @desc    Create destination
 // @route   POST /api/destinations
 // @access  Private (Admin only)
+// NOTE: image should be a Cloudinary URL (frontend uploads image to /api/upload, then sends URL here)
 const createDestination = async (req, res) => {
   try {
     const destination = await Destination.create(req.body);
@@ -114,6 +115,7 @@ const createDestination = async (req, res) => {
 // @desc    Update destination
 // @route   PUT /api/destinations/:id
 // @access  Private (Admin only)
+// NOTE: image should be a Cloudinary URL (frontend uploads image to /api/upload, then sends URL here)
 const updateDestination = async (req, res) => {
   try {
     const destination = await Destination.findByIdAndUpdate(
