@@ -262,13 +262,26 @@ const getAvailableGuides = async (req, res) => {
       });
     }
 
-    // Find all available guides, without filtering by request criteria
-    const availableGuides = await User.find({
+    // Build query for available guides
+    const query = {
       role: 'guide',
       isActive: true,
       available: true,
       verificationStatus: 'verified'
-    }).select('-password').sort('-rating');
+    };
+
+    // Add matching criteria from the request
+    if (request.preferredLanguage) {
+      query.languages = request.preferredLanguage;
+    }
+
+    if (request.specialInterests && request.specialInterests.length > 0) {
+      query.specialties = { $in: request.specialInterests };
+    }
+
+    const availableGuides = await User.find(query)
+      .select('-password')
+      .sort('-rating');
 
     res.status(200).json({
       status: 'success',

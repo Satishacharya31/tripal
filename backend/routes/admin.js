@@ -1,5 +1,8 @@
 const express = require('express');
 const {
+  getDashboardStats,
+  getAllUsers,
+  getUserProfile,
   getAllGuidesForVerification,
   verifyGuide,
 } = require('../controllers/adminController');
@@ -11,6 +14,9 @@ const router = express.Router();
 router.use(protect);
 router.use(restrictTo('admin'));
 
+router.get('/dashboard', getDashboardStats);
+router.get('/users', getAllUsers);
+router.get('/users/:id', getUserProfile);
 router.get('/guides', getAllGuidesForVerification);
 router.put('/guides/:id/verify', verifyGuide);
 

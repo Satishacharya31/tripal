@@ -136,6 +136,8 @@ const getRequests = async (req, res) => {
 
     // Execute query with pagination
     const requests = await Request.find(query)
+      .populate('tourist', 'name email')
+      .populate('assignedGuide', 'name email')
       .sort(sort)
       .limit(limit * 1)
       .skip((page - 1) * limit);

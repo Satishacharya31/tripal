@@ -30,7 +30,7 @@ const GuideDashboard = () => {
   const [showNotifications, setShowNotifications] = React.useState(false);
 
   // Get requests assigned to this guide
-  const myAssignments = requests.filter(req => req.assignedGuide === user._id);
+  const myAssignments = requests.filter(req => req.assignedGuide?._id === user._id);
 
   const getTourist = (touristId) => {
     return touristId ? requests.find(req => req.touristId === touristId)?.tourist || null : null;
@@ -418,7 +418,7 @@ const GuideDashboard = () => {
 
                     {/* Action Buttons */}
                     <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                      {request.status === 'assigned' && (
+                      {request.status === 'assigned' ? (
                         <button
                           onClick={() => handleStatusUpdate(request._id, 'in-progress')}
                           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center"
@@ -426,8 +426,7 @@ const GuideDashboard = () => {
                           <Users className="h-4 w-4 mr-2" />
                           Start Tour
                         </button>
-                      )}
-                      {request.status === 'in-progress' && (
+                      ) : request.status === 'in-progress' ? (
                         <button
                           onClick={() => handleStatusUpdate(request._id, 'completed')}
                           className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center"
@@ -435,7 +434,7 @@ const GuideDashboard = () => {
                           <CheckCircle className="h-4 w-4 mr-2" />
                           Complete Tour
                         </button>
-                      )}
+                      ) : null}
                       <button
                         onClick={() => setSelectedRequest(request)}
                         className="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors flex items-center"

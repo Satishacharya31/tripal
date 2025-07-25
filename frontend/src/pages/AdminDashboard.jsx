@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserCheck, Clock, CheckCircle, Search, Filter, Eye, UserPlus, MapPin, Calendar, Phone, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Users, UserCheck, Clock, CheckCircle, Search, Filter, Eye, UserPlus, MapPin, Calendar, Phone, Mail, User } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -120,6 +121,9 @@ const AdminDashboard = () => {
                   >
                     <Eye className="h-5 w-5" />
                   </button>
+                  <Link to={`/admin/users/${request.touristId?._id}`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+                    <User className="h-5 w-5" />
+                  </Link>
                 </div>
               </div>
               
@@ -181,6 +185,9 @@ const AdminDashboard = () => {
                       <p className="text-green-700 font-medium">{guides.find(g => g._id === request.assignedGuide)?.name}</p>
                       <p className="text-green-600 text-sm">{guides.find(g => g._id === request.assignedGuide)?.phone}</p>
                     </div>
+                     {request.assignedGuide && <Link to={`/admin/users/${request.assignedGuide?._id}`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+                      <Eye className="h-5 w-5" />
+                    </Link>}
                   </div>
                 </div>
               )}
@@ -415,7 +422,7 @@ const AdminDashboard = () => {
               </h3>
               
               <div className="space-y-4 mb-6">
-                {availableGuides.map(guide => (
+                {guides.map(guide => (
                   <div key={guide._id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
@@ -451,10 +458,9 @@ const AdminDashboard = () => {
                   </div>
                 ))}
                 
-                {availableGuides.length === 0 && (
+                {guides.length === 0 && (
                   <div className="text-center py-8">
-                    <p className="text-gray-500">No available guides match the requirements for this request.</p>
-                    <p className="text-sm text-gray-400 mt-2">Consider assigning a guide with similar skills or contact the tourist to modify requirements.</p>
+                    <p className="text-gray-500">No guides found.</p>
                   </div>
                 )}
               </div>
