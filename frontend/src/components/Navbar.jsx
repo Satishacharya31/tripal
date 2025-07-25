@@ -55,10 +55,10 @@ const Navbar = () => {
                     Request Guide
                   </Link>
                 )}
-                {user.role === 'guide' && (
+                {/* {user.role === 'guide' && (
                   <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
                   </span>
-                )}
+                )} */}
                 <div className="relative group">
                   <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
                     <User className="h-5 w-5" />
