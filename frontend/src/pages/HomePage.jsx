@@ -5,7 +5,7 @@ import { Mountain, MapPin, Users, Star, ArrowRight, Heart } from "lucide-react";
 import { useData } from "../context/DataContext";
 import { useAuth } from "../context/AuthContext";
 
-import logoNepXplore from "../assets/logo-white.png";
+import logoNepXplore from "../assets/NepXplore_favicon-white.png";
 
 const HomePage = () => {
   const { destinations, loading } = useData();
@@ -57,7 +57,7 @@ const HomePage = () => {
           <img
             src={logoNepXplore}
             alt="NepXplore Logo"
-            className="h-12 object-contain mx-auto"
+            className="h-24  object-contain mx-auto"
           />
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             Discover the Magic of Nepal
