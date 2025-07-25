@@ -1,46 +1,22 @@
-// A simple storage utility that can be extended to use other storage mechanisms.
-// For now, it uses localStorage, but it can be easily swapped out for a more
-// secure or persistent storage solution in the future.
+import axios from 'axios';
+import storage from './storage';
 
-const storage = {
-  /**
-   * Retrieves an item from storage.
-   * @param {string} key The key of the item to retrieve.
-   * @returns {string|null} The retrieved item, or null if not found.
-   */
-  get(key) {
-    try {
-      return localStorage.getItem(key);
-    } catch (error) {
-      console.error(`Error getting item "${key}" from storage:`, error);
-      return null;
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://nepxplore.onrender.com',
+  withCredentials: true, // Important for sending cookies
+});
+
+api.interceptors.request.use(
+  (config) => {
+    const token = storage.get('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
   },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-  /**
-   * Stores an item in storage.
-   * @param {string} key The key of the item to store.
-   * @param {string} value The value of the item to store.
-   */
-  set(key, value) {
-    try {
-      localStorage.setItem(key, value);
-    } catch (error) {
-      console.error(`Error setting item "${key}" in storage:`, error);
-    }
-  },
-
-  /**
-   * Removes an item from storage.
-   * @param {string} key The key of the item to remove.
-   */
-  remove(key) {
-    try {
-      localStorage.removeItem(key);
-    } catch (error) {
-      console.error(`Error removing item "${key}" from storage:`, error);
-    }
-  },
-};
-
-export default storage;
+export default api;

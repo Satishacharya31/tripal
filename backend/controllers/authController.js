@@ -25,6 +25,7 @@ const sendTokenResponse = (user, statusCode, res, message = 'Success') => {
     .json({
       status: 'success',
       message,
+      token,
       data: {
         user: user.getPublicProfile()
       }

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../utils/api';
 import { apiPaths } from '../utils/apiPaths';
+import storage from '../utils/storage';
 
 const AuthContext = createContext();
 
@@ -18,11 +19,18 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const fetchUser = async () => {
+    const token = storage.get('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await api.get(apiPaths.getMe);
       setUser(response.data.data.user);
     } catch (error) {
       console.error('Session check failed:', error);
+      storage.remove('token');
       setUser(null);
     } finally {
       setLoading(false);
@@ -36,8 +44,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setIsAuthenticating(true);
     try {
-      await api.post(apiPaths.login, { email, password });
-      await fetchUser();
+      const response = await api.post(apiPaths.login, { email, password });
+      const { token, data } = response.data;
+      storage.set('token', token);
+      setUser(data.user);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.response?.data?.message || 'Login failed' };
@@ -49,8 +59,10 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     setIsAuthenticating(true);
     try {
-      await api.post(apiPaths.register, userData);
-      await fetchUser();
+      const response = await api.post(apiPaths.register, userData);
+      const { token, data } = response.data;
+      storage.set('token', token);
+      setUser(data.user);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.response?.data?.message || 'Registration failed' };
@@ -65,6 +77,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
+      storage.remove('token');
       setUser(null);
     }
   };
