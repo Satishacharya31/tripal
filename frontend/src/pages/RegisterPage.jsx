@@ -67,7 +67,7 @@ const RegisterPage = () => {
           </div>
           
           <a
-            href="http://localhost:5000/api/auth/google"
+            href={process.env.VITE_BACK_BASE_URL + "/api/auth/google"}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center mb-6"
           >
             <svg

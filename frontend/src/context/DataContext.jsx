@@ -26,24 +26,13 @@ export const DataProvider = ({ children }) => {
   const fetchData = async (endpoint, setter) => {
     try {
       const response = await api.get(endpoint);
-      let result = [];
-      if (response.data.data) {
-        if (response.data.data.destinations) {
-          result = response.data.data.destinations;
-        } else if (response.data.data.guides) {
-          result = response.data.data.guides;
-        } else if (response.data.data.requests) {
-          result = response.data.data.requests;
-        } else if (response.data.data.notifications) {
-          result = response.data.data.notifications;
-        } else {
-          result = response.data.data;
-        }
-      }
-      if (!Array.isArray(result)) {
-        result = [];
-      }
-      setter(result);
+      let result = response.data.data || response.data;
+      if (result.destinations) result = result.destinations;
+      else if (result.guides) result = result.guides;
+      else if (result.requests) result = result.requests;
+      else if (result.notifications) result = result.notifications;
+      
+      setter(Array.isArray(result) ? result : []);
     } catch (err) {
       setError(err.message);
     }

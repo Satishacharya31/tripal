@@ -12,7 +12,7 @@ const TouristDashboard = () => {
   const [openGuideModal, setOpenGuideModal] = useState(false);
   const [selectedGuide, setSelectedGuide] = useState(null);
 
-  const userRequests = requests && user ? requests.filter(req => req.tourist?._id === user._id) : [];
+  const userRequests = requests && user ? requests.filter(req => (req.tourist?._id || req.tourist) === user._id) : [];
 
   useEffect(() => {
     if (location.state?.message) {
@@ -70,6 +70,9 @@ const TouristDashboard = () => {
 
   
   const getDestination = (destId) => {
+    if (!destinations || destinations.length === 0) {
+      return null;
+    }
     return destinations.find(d => d._id === destId);
   };
 
@@ -187,7 +190,7 @@ const TouristDashboard = () => {
             
             return (
               <div 
-                key={request.id} 
+                key={request._id} 
                 className="p-6 hover:bg-gray-50 transition-colors duration-200 rounded-lg border border-gray-200"
               >
                 <div className="flex items-start justify-between mb-4">
